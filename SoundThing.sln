@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31911.196
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundThing", "SoundThing.csproj", "{D536E52C-A405-49F1-AB81-6744AE61E117}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D536E52C-A405-49F1-AB81-6744AE61E117}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D536E52C-A405-49F1-AB81-6744AE61E117}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D536E52C-A405-49F1-AB81-6744AE61E117}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D536E52C-A405-49F1-AB81-6744AE61E117}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {15EEE71E-4ED5-4B3C-B015-F510D7F3CEA4}
+	EndGlobalSection
+EndGlobal
