@@ -13,14 +13,14 @@ namespace SoundThing.Services.Instruments
                             decay: 0.2,
                             release: 0.2);
 
-        protected override Func<int, SoundInfo, short> NoteGenerator =>
-            (int sampleIndex, SoundInfo soundInfo) =>
+        protected override Func<int, NoteEvent, short> NoteGenerator =>
+            (int sampleIndex, NoteEvent noteEvent) =>
                 Generator.Square
                          .AddOvertones(6)
                          //.PowerChord()
                        // .Gain(1.5)
                         //.Clip(1.0)
-                         (sampleIndex, soundInfo);
+                         (sampleIndex, noteEvent);
                     
     }
 }

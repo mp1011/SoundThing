@@ -2,11 +2,10 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SoundThing.Extensions;
 using SoundThing.Models;
 using SoundThing.Services;
 using SoundThing.Services.Instruments;
-using System.Collections.Generic;
+using SoundThing.Services.NoteEventBuilders;
 
 namespace SoundThing
 {
@@ -14,7 +13,7 @@ namespace SoundThing
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private Player _player;
+        private Band _band;
         private SoundEffectInstance _sound;
         private double _time = 0;
 
@@ -28,26 +27,22 @@ namespace SoundThing
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            var instrument = new TestInstrument();
-     
+           
             var scale = Scale.Create(ScaleType.MajorScale, 
-                new NoteInfo(MusicNote.C, 2, 1.0));
+                new NoteInfo(MusicNote.C, 2, 0.2));
 
-            //var noteBuilder = new NoteBuilder(scale, bpm: 120, beatNote: NoteType.Quarter)
-            //    .AddNotes(NoteType.Quarter, 1, 1, 5, 5, 6, 6)
-            //    .AddNotes(NoteType.Half, 5)
-            //    .AddNotes(NoteType.Quarter, 4, 4, 3, 3, 2, 2)
-            //    .AddNotes(NoteType.Half, 1)
-            //    .AddNotes(NoteType.Quarter, 5, 5, 4, 4, 3, 3)
-            //    .AddNotes(NoteType.Half, 2)
-            //    .AddNotes(NoteType.Quarter, 5, 5, 4, 4, 3, 3)
-            //    .AddNotes(NoteType.Half, 2)
-            //    .AddNotes(NoteType.Quarter, 1, 1, 5, 5, 6, 6)
-            //    .AddNotes(NoteType.Half, 5)
-            //    .AddNotes(NoteType.Quarter, 4, 4, 3, 3, 2, 2)
-            //    .AddNotes(NoteType.Half, 1); 
+            var drumBuilder = new PercussionBuilder(120, NoteType.Quarter);
 
-            var noteBuilder = new NoteBuilder(scale, bpm: 120, beatNote: NoteType.Quarter)
+            drumBuilder.AddGroup(NoteType.Quarter, DrumPart.Kick, DrumPart.HiHat)
+                       .Add(NoteType.Quarter, DrumPart.HiHat)
+                       .AddGroup(NoteType.Quarter, DrumPart.Snare, DrumPart.HiHat)
+                       .Add(NoteType.Quarter, DrumPart.HiHat)
+                       .Repeat(11);
+
+            //var noteBuilder = new ScaleNoteBuilder(scale, bpm: 120, beatNote: NoteType.Quarter)
+            //    .AddNotes(NoteType.Quarter, 4, 4, 4, 4);
+
+            var noteBuilder = new ScaleNoteBuilder(scale, bpm: 120, beatNote: NoteType.Quarter)
                 .AddQuarters(1, 1, 5, 5)
                 .AddEights(6, 6, 6, 6)
                 .AddHalves(5)
@@ -61,11 +56,28 @@ namespace SoundThing
                 .AddEights(6, 6, 6, 6)
                 .AddHalves(5)
                 .AddQuarters(4, 4, 3, 3, 2, 2)
-                .AddHalves(1);
+                .AddHalves(1)
+                .AddWholes(0);
 
-            _player = new Player(instrument, noteBuilder);
+            var noteBuilder2 = new ScaleNoteBuilder(scale, bpm: 120, beatNote: NoteType.Quarter)
+                .AddWholes(1, 1)
+                .AddWholes(5, 5)
+                .AddWholes(1, 1)
+                .AddWholes(5, 5)
+                .AddWholes(1, 1)
+                .SetOctave(1)
+                .AddHalves(5,7)
+                .SetOctave(2)
+                .AddHalves(1)
+                .AddWholes(0);
 
-            _sound = _player.GenerateSound();
+
+            var player1 = new Player(new TestInstrument(), noteBuilder);
+            var player2 = new Player(new TestDrumKit(), drumBuilder);
+            var player3 = new Player(new SineInstrument(), noteBuilder2);
+
+              _band = new Band(player1, player2, player3);
+              _sound = _band.GenerateSound();
 
             base.Initialize();
         }

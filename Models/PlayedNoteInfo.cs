@@ -17,5 +17,10 @@
         public double Duration { get; }
         public int SampleDuration => (int)(Duration * Constants.SamplesPerSecond);
         public NoteInfo NoteInfo { get; }
+
+        public PlayedNoteInfo ChangeVolume(double newVolumePercent)
+        {
+            return new PlayedNoteInfo(NoteInfo.ChangeVolumePercent(newVolumePercent), Duration);
+        }
     }
 }

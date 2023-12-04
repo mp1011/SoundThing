@@ -20,6 +20,15 @@ namespace SoundThing.Services
                 .ToArray();
         }
 
+        public int TotalSamples
+        {
+            get
+            {
+                var lastEvent = _events.Last();
+                return lastEvent.SampleIndexStart + lastEvent.Note.SampleDuration;
+            }
+        }
+
         private Func<int, short> BaseSoundGenerator()
         {
             List<NoteEvent> playingNotes = new List<NoteEvent>();
@@ -40,19 +49,10 @@ namespace SoundThing.Services
                 return noteValue;
             };
         }
-        private Func<int, short> SoundGenerator()
+        public Func<int, short> SoundGenerator()
         {
             return BaseSoundGenerator();
                  //  .AddEcho(0.5);
-        }
-
-
-        public SoundEffectInstance GenerateSound()
-        {
-            var lastEvent = _events.Last();
-            var totalSamples = lastEvent.SampleIndexStart + lastEvent.Note.SampleDuration;
-            var sfx = SoundEffectMaker.Create(totalSamples, SoundGenerator());
-            return sfx.CreateInstance();
         }
     }
 }

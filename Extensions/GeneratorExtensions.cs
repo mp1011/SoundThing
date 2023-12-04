@@ -13,6 +13,14 @@ namespace SoundThing.Extensions
             };
         }
 
+        public static Func<int, short> Add(this Func<int, short> generator, Func<int, short> generator2)
+        {
+            return (int sampleIndex) =>
+            {
+                return (short)(generator(sampleIndex) + generator2(sampleIndex));
+            };
+        }
+
         public static Func<int, SoundInfo, short> RootAndFifth(this Func<int, SoundInfo, short> generator)
         {
             return (int sampleIndex, SoundInfo soundInfo) =>
@@ -59,6 +67,30 @@ namespace SoundThing.Extensions
             };
         }
 
+        public static Func<int, SoundInfo, short> Abs(this Func<int, SoundInfo, short> generator)
+        {
+            return (int sampleIndex, SoundInfo soundInfo) =>
+            {
+                var value = generator(sampleIndex, soundInfo);
+                if (value < 0)
+                    return (short)-value;
+                else
+                    return value;
+            };
+        }
+
+        public static Func<int, SoundInfo, short> AbsNeg(this Func<int, SoundInfo, short> generator)
+        {
+            return (int sampleIndex, SoundInfo soundInfo) =>
+            {
+                var value = generator(sampleIndex, soundInfo);
+                if (value > 0)
+                    return (short)-value;
+                else
+                    return value;
+            };
+        }
+
         public static Func<int, SoundInfo, short> Clip(this Func<int, SoundInfo, short> generator, double clipPercent)
         {
             short max = (short)(clipPercent * Constants.MaxVolume);
@@ -66,6 +98,22 @@ namespace SoundThing.Extensions
             return (int sampleIndex, SoundInfo soundInfo) =>
             {
                 var value = generator(sampleIndex, soundInfo);
+                if (value > max)
+                    return max;
+                else if (value < -max)
+                    return (short)-max;
+                else
+                    return value;
+            };
+        }
+
+        public static Func<int, short> Clip(this Func<int, short> generator, double clipPercent)
+        {
+            short max = (short)(clipPercent * Constants.MaxVolume);
+
+            return (int sampleIndex) =>
+            {
+                var value = generator(sampleIndex);
                 if (value > max)
                     return max;
                 else if (value < -max)
@@ -93,61 +141,7 @@ namespace SoundThing.Extensions
             };
         }
 
-        public static Func<int, SoundInfo, short> ApplyEnvelope(this Func<int, SoundInfo, short> generator, 
-            Envelope? maybeEnvelope, 
-            NoteEvent noteEvent)
-        {
-            if (maybeEnvelope == null)
-                return generator;
-
-            var envelope = maybeEnvelope.Value;
-
-            return (int sampleIndex, SoundInfo soundInfo) =>
-            {
-                if (sampleIndex < noteEvent.SampleIndexStart)
-                    return generator(sampleIndex, soundInfo);
-                if (sampleIndex > noteEvent.SampleIndexEnd)
-                    return generator(sampleIndex, soundInfo);
-
-                var sustainSamples = noteEvent.Note.SampleDuration - 
-                    (envelope.AttackSamples + envelope.DecaySamples + envelope.ReleaseSamples);
-
-                var envelopeSampleIndex = sampleIndex - noteEvent.SampleIndexStart;
-
-                if (envelopeSampleIndex < envelope.AttackSamples)
-                {
-                    var attackPercent = envelopeSampleIndex / (envelope.AttackSamples);
-                    return generator(sampleIndex, new SoundInfo(soundInfo.Frequency, soundInfo.VolumePercent * attackPercent));
-                }
-                else if (envelopeSampleIndex < (envelope.AttackSamples + envelope.DecaySamples))
-                {
-                    int decayIndex = envelopeSampleIndex - envelope.AttackSamples;
-                    var decayPercent = decayIndex / envelope.DecaySamples;
-
-                    var sustainVolume = soundInfo.VolumePercent * envelope.SustainVolumePercent;
-                    var sustainVolumeDrop = soundInfo.VolumePercent - sustainVolume;
-                    var decayVolume = soundInfo.VolumePercent - (sustainVolumeDrop * decayPercent);
-
-                    return generator(sampleIndex, new SoundInfo(soundInfo.Frequency, decayVolume));
-                }
-                else if (envelopeSampleIndex < (envelope.AttackSamples + envelope.DecaySamples + sustainSamples))
-                {
-                    var sustainVolume = soundInfo.VolumePercent * envelope.SustainVolumePercent;
-                    return generator(sampleIndex, new SoundInfo(soundInfo.Frequency, sustainVolume));
-                }
-                else
-                {
-                    int releaseIndex = envelopeSampleIndex - (envelope.AttackSamples + envelope.DecaySamples + sustainSamples);
-                    var releasePercent = releaseIndex / (double)envelope.ReleaseSamples;
-                    if (releasePercent > 1.0)
-                        releasePercent = 1.0;
-
-                    var sustainVolume = soundInfo.VolumePercent * envelope.SustainVolumePercent;
-                    var releaseVolume = sustainVolume * (1.0 - releasePercent);
-                    return generator(sampleIndex, new SoundInfo(soundInfo.Frequency, releaseVolume));
-                }
-            };
-        }
+      
 
     }
 

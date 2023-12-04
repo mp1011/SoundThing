@@ -9,10 +9,10 @@ namespace SoundThing.Services
         public short NoteValue(int sampleIndex, NoteEvent noteEvent) =>
             NoteGenerator
                 .ApplyEnvelope(Envelope, noteEvent)
-                (sampleIndex, noteEvent.Note.NoteInfo);
+                (sampleIndex, noteEvent);
 
         public virtual Envelope? Envelope => null;
 
-        protected abstract Func<int, SoundInfo, short> NoteGenerator { get; }
+        protected abstract Func<int, NoteEvent, short> NoteGenerator { get; }
     }
 }

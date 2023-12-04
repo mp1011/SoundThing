@@ -35,6 +35,9 @@ namespace SoundThing.Services
         protected abstract ScaleStep[] Steps { get; }
         public NoteInfo GetNote(int number)
         {
+            if (number <= 0)
+                return new NoteInfo(MusicNote.Rest, 0, 0.0);
+
             var note = Root;
             for (int i = 1; i < number; i++)
             {
@@ -52,7 +55,18 @@ namespace SoundThing.Services
         public static Scale Create(ScaleType type, NoteInfo root)
         {
             Type scaleType = typeof(Scale).Assembly.GetType($"SoundThing.Services.{type}");
+            return Construct(scaleType, root);
+        }
+
+        private static Scale Construct(Type scaleType, NoteInfo root)
+        {
             return Activator.CreateInstance(scaleType, root) as Scale;
+        }
+
+        public Scale ChangeOctave(int octave)
+        {
+            var newRoot = new NoteInfo(Root.Note, octave, Root.VolumePercent);
+            return Construct(GetType(), newRoot);
         }
     }
 

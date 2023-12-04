@@ -8,8 +8,28 @@
             SampleIndexStart = (int)(startTime * Constants.SamplesPerSecond);
         }
 
+        public NoteEvent(PlayedNoteInfo note, int startIndex)
+        {
+            Note = note;
+            SampleIndexStart = startIndex;
+        }
+
         public PlayedNoteInfo Note { get; }
         public int SampleIndexStart { get; }
         public int SampleIndexEnd => SampleIndexStart + Note.SampleDuration;
+
+        public MusicNote MusicNote => Note.NoteInfo.Note;
+
+        public DrumPart DrumPart => (DrumPart)Note.NoteInfo.Note;
+
+        public NoteEvent ChangeVolume(double newVolumePercent)
+        {
+            return new NoteEvent(Note.ChangeVolume(newVolumePercent), SampleIndexStart);
+        }
+
+        public NoteEvent ShiftStart(int amount) => new NoteEvent(Note, SampleIndexStart + amount);
+
+        public static implicit operator SoundInfo(NoteEvent n) =>
+            n.Note.NoteInfo;
     }
 }

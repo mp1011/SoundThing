@@ -16,6 +16,11 @@ namespace SoundThing.Models
         public int Octave { get; }
         public double VolumePercent { get; }
 
+        public NoteInfo ChangeVolumePercent(double newVolumePercent)
+        {
+            return new NoteInfo(Note, Octave, newVolumePercent);
+        }
+
         public NoteInfo Step(ScaleStep step)
         {
             return Step((int)step);

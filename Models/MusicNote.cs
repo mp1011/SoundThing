@@ -13,6 +13,7 @@
         F,
         FSharp,
         G,
-        GSharp
+        GSharp,
+        Rest
     }
 }
