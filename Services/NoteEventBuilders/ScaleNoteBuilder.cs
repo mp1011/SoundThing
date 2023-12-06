@@ -1,4 +1,5 @@
 ﻿using SoundThing.Models;
+using System;
 
 namespace SoundThing.Services.NoteEventBuilders
 {
@@ -8,6 +9,12 @@ namespace SoundThing.Services.NoteEventBuilders
 
         public ScaleNoteBuilder(Scale scale, int bpm, NoteType beatNote) 
             : base(bpm, beatNote)
+        {
+            _scale = scale;
+        }
+
+        private ScaleNoteBuilder(ScaleNoteBuilder cloneSource, Scale scale, Func<NoteEvent, NoteEvent> transform)
+          : base(cloneSource, transform)
         {
             _scale = scale;
         }
@@ -33,6 +40,11 @@ namespace SoundThing.Services.NoteEventBuilders
         protected override NoteInfo CreateNoteInfo(int note)
         {
             return _scale.GetNote(note);
+        }
+
+        public ScaleNoteBuilder ChangeScale(Scale newScale)
+        {
+            throw new NotImplementedException();
         }
     }
 }

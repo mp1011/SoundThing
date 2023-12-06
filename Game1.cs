@@ -29,7 +29,7 @@ namespace SoundThing
             // TODO: Add your initialization logic here
            
             var scale = Scale.Create(ScaleType.MajorScale, 
-                new NoteInfo(MusicNote.C, 2, 0.2));
+                new NoteInfo(MusicNote.C, 2, 1.0));
 
             var drumBuilder = new PercussionBuilder(120, NoteType.Quarter);
 
@@ -43,6 +43,7 @@ namespace SoundThing
             //    .AddNotes(NoteType.Quarter, 4, 4, 4, 4);
 
             var noteBuilder = new ScaleNoteBuilder(scale, bpm: 120, beatNote: NoteType.Quarter)
+                .AddQuarters(1,0,1,0)
                 .AddQuarters(1, 1, 5, 5)
                 .AddEights(6, 6, 6, 6)
                 .AddHalves(5)
@@ -71,14 +72,16 @@ namespace SoundThing
                 .AddHalves(1)
                 .AddWholes(0);
 
+           // var noteBuilder3 = noteBuilder.ChangeScale(scale.ChangeOctave(3));
 
             var player1 = new Player(new TestInstrument(), noteBuilder);
-            var player2 = new Player(new TestDrumKit(), drumBuilder);
-            var player3 = new Player(new SineInstrument(), noteBuilder2);
+            var player3 = new Player(new TestDrumKit(), drumBuilder);
+            var player2 = new Player(new SineInstrument(), noteBuilder2);
+          //  var player4 = new Player(new SineInstrument(), noteBuilder3);
 
-              _band = new Band(player1, player2, player3);
+            _band = new Band(player1);
               _sound = _band.GenerateSound();
-
+            
             base.Initialize();
         }
 

@@ -37,7 +37,7 @@ namespace SoundThing.Extensions
 
                 if (envelopeSampleIndex < envelope.AttackSamples)
                 {
-                    var attackPercent = envelopeSampleIndex / (envelope.AttackSamples);
+                    var attackPercent = envelopeSampleIndex / (double)(envelope.AttackSamples);
                     return generator(sampleIndex, noteEvent.ChangeVolume(soundInfo.VolumePercent * attackPercent));
                 }
                 else if (envelopeSampleIndex < (envelope.AttackSamples + envelope.DecaySamples))

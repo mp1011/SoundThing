@@ -23,8 +23,9 @@ namespace SoundThing.Services
 
 
             var sfx = SoundEffectMaker.Create(totalSamples, 
-                soundGenerator.Clip(1.0));
-
+                soundGenerator
+                    .Clip(1.0));
+  
             return sfx.CreateInstance();
         }
     }

@@ -1,5 +1,6 @@
 ﻿using SoundThing.Extensions;
 using SoundThing.Models;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,17 @@ namespace SoundThing.Services.NoteEventBuilders
         {
             _bpm = bpm;
             _beatNote = beatNote;
+        }
+
+        public NoteEventBuilder(NoteEventBuilder<T> cloneSource, Func<NoteEvent,NoteEvent> transform)
+        {
+            _bpm = cloneSource._bpm;
+            _beatNote = cloneSource._beatNote;
+            _time = cloneSource._time;
+
+            _noteEvents = cloneSource._noteEvents
+                .Select(transform)
+                .ToList();
         }
 
         protected void AddEvents(NoteType noteType, params T[] notes)
@@ -66,7 +78,6 @@ namespace SoundThing.Services.NoteEventBuilders
         }
 
         protected abstract NoteInfo CreateNoteInfo(T note);
-
         public IEnumerator<NoteEvent> GetEnumerator()
         {
             return ((IEnumerable<NoteEvent>)_noteEvents).GetEnumerator();
