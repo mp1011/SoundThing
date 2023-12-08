@@ -31,7 +31,7 @@ namespace SoundThing.Models
             var newNote = Note + amount;
             var newOctave = Octave;
 
-            if(Note > MusicNote.GSharp)
+            if(newNote > MusicNote.GSharp)
             {
                 newOctave++;
                 newNote -= 12;

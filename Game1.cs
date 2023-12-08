@@ -31,7 +31,7 @@ namespace SoundThing
             var scale = Scale.Create(ScaleType.MajorScale, 
                 new NoteInfo(MusicNote.C, 2, 1.0));
 
-            var drumBuilder = new PercussionBuilder(120, NoteType.Quarter);
+            var drumBuilder = new NoteEventBuilder(scale: scale, bpm: 120, beatNote: NoteType.Quarter);
 
             drumBuilder.AddGroup(NoteType.Quarter, DrumPart.Kick, DrumPart.HiHat)
                        .Add(NoteType.Quarter, DrumPart.HiHat)
@@ -42,25 +42,24 @@ namespace SoundThing
             //var noteBuilder = new ScaleNoteBuilder(scale, bpm: 120, beatNote: NoteType.Quarter)
             //    .AddNotes(NoteType.Quarter, 4, 4, 4, 4);
 
-            var noteBuilder = new ScaleNoteBuilder(scale, bpm: 120, beatNote: NoteType.Quarter)
-                .AddQuarters(1,0,1,0)
+            var noteBuilder = new NoteEventBuilder(scale: scale, bpm: 120, beatNote: NoteType.Quarter)
                 .AddQuarters(1, 1, 5, 5)
-                .AddEights(6, 6, 6, 6)
+                .AddEighths(6, 6, 6, 6)
                 .AddHalves(5)
                 .AddQuarters(4, 4, 3, 3, 2, 2)
                 .AddHalves(1)
-                .AddQuarters(5).AddEights(5, 5).AddQuarters(4, 4)
-                .AddQuarters(3).AddEights(3, 3).AddHalves(2)
-                .AddQuarters(5).AddEights(5, 5, 4, 4, 4, 4)
-                .AddQuarters(3).AddEights(3, 3).AddHalves(2)
+                .AddQuarters(5).AddEighths(5, 5).AddQuarters(4, 4)
+                .AddQuarters(3).AddEighths(3, 3).AddHalves(2)
+                .AddQuarters(5).AddEighths(5, 5, 4, 4, 4, 4)
+                .AddQuarters(3).AddEighths(3, 3).AddHalves(2)
                 .AddQuarters(1, 1, 5, 5)
-                .AddEights(6, 6, 6, 6)
+                .AddEighths(6, 6, 6, 6)
                 .AddHalves(5)
                 .AddQuarters(4, 4, 3, 3, 2, 2)
                 .AddHalves(1)
                 .AddWholes(0);
 
-            var noteBuilder2 = new ScaleNoteBuilder(scale, bpm: 120, beatNote: NoteType.Quarter)
+            var noteBuilder2 = new NoteEventBuilder(scale: scale, bpm: 120, beatNote: NoteType.Quarter)
                 .AddWholes(1, 1)
                 .AddWholes(5, 5)
                 .AddWholes(1, 1)

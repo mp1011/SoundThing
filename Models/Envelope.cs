@@ -19,6 +19,8 @@
         public int DecaySamples => (int)(Decay * Constants.SamplesPerSecond);
         public int ReleaseSamples => (int)(Release * Constants.SamplesPerSecond);
 
+        public int MinEnvelopeSamples => AttackSamples + DecaySamples + ReleaseSamples;
+
     }
 
 }

@@ -18,6 +18,10 @@
         public int SampleIndexStart { get; }
         public int SampleIndexEnd => SampleIndexStart + Note.SampleDuration;
 
+        public double StartTime => SampleIndexStart / (double)Constants.SamplesPerSecond;
+        public double Duration => Note.Duration;
+        public bool IsRest => Note.NoteInfo.Note == MusicNote.Rest;
+        public int SampleDuration => Note.SampleDuration;
         public MusicNote MusicNote => Note.NoteInfo.Note;
 
         public DrumPart DrumPart => (DrumPart)Note.NoteInfo.Note;
@@ -25,6 +29,11 @@
         public NoteEvent ChangeVolume(double newVolumePercent)
         {
             return new NoteEvent(Note.ChangeVolume(newVolumePercent), SampleIndexStart);
+        }
+
+        public NoteEvent ChangeSampleDuration(int newDuration)
+        {
+            return new NoteEvent(Note.ChangeSampleDuration(newDuration), SampleIndexStart);
         }
 
         public NoteEvent ShiftStart(int amount) => new NoteEvent(Note, SampleIndexStart + amount);

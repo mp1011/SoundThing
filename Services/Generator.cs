@@ -47,7 +47,7 @@ namespace SoundThing.Services
             if (value >= samplesPerWave * percent)
                 return 0;
 
-            return (short)(-soundInfo.Volume);
+            return (short)(soundInfo.Volume);
         };
 
         public static Func<int, SoundInfo, short> Saw = (sampleIndex, soundInfo) =>

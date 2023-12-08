@@ -13,6 +13,33 @@ namespace SoundThing.Extensions
                  new NoteEvent(new PlayedNoteInfo(noteInfo, timePerNote), startTime + (timePerNote * index)));               
         }
 
+        public static IEnumerable<NoteEvent> AdjustToEnvelope (this IEnumerable<NoteEvent> noteEvents, Envelope? maybeEnvelope)
+        {
+            if (maybeEnvelope == null)
+                return noteEvents;
+
+            var envelope = maybeEnvelope.Value;
+            var minEnvelopeSamples = envelope.AttackSamples + envelope.DecaySamples + envelope.ReleaseSamples;
+            return noteEvents.Select(p =>
+            {
+                if (minEnvelopeSamples > p.Note.SampleDuration)
+                    return p.AdjustToEnvelope(envelope);
+                else
+                    return p;
+            });
+        }
+
+        private static NoteEvent AdjustToEnvelope(this NoteEvent noteEvent, Envelope envelope)
+        {
+            var adjustedDuration = noteEvent.Note.Duration + envelope.Release;
+
+            return new NoteEvent(
+                note: new PlayedNoteInfo(
+                    noteInfo: noteEvent.Note.NoteInfo,
+                    duration: adjustedDuration),
+                startIndex: noteEvent.SampleIndexStart);
+        }
+
         public static Func<int, NoteEvent, short> ApplyEnvelope(this Func<int, NoteEvent, short> generator,
           Envelope? maybeEnvelope,
           NoteEvent noteEvent)

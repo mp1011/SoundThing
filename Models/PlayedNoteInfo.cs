@@ -1,6 +1,6 @@
 ﻿namespace SoundThing.Models
 {
-    class PlayedNoteInfo 
+    class PlayedNoteInfo
     {
         public PlayedNoteInfo(MusicNote note, int octave, double volumePercent, double duration)
         {
@@ -21,6 +21,11 @@
         public PlayedNoteInfo ChangeVolume(double newVolumePercent)
         {
             return new PlayedNoteInfo(NoteInfo.ChangeVolumePercent(newVolumePercent), Duration);
+        }
+
+        public PlayedNoteInfo ChangeSampleDuration(int newSampleDuration)
+        {
+            return new PlayedNoteInfo(NoteInfo, newSampleDuration / (double)Constants.SamplesPerSecond);
         }
     }
 }

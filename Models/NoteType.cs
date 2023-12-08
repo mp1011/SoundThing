@@ -5,7 +5,7 @@
         Whole = 1,
         Half = 2,
         Quarter = 4,
-        Eight = 8,
+        Eighth = 8,
         Sixteenth = 16
     }
 }
