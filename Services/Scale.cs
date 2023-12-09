@@ -28,11 +28,15 @@ namespace SoundThing.Services
         protected Scale(NoteInfo root)
         {
             Root = root;
+            _steps = CreateSteps();
         }
 
         public NoteInfo Root { get; }
 
-        protected abstract ScaleStep[] Steps { get; }
+        protected abstract ScaleStep[] CreateSteps();
+
+        private ScaleStep[] _steps;
+
         public NoteInfo GetNote(int number)
         {
             if (number <= 0)
@@ -41,7 +45,7 @@ namespace SoundThing.Services
             var note = Root;
             for (int i = 1; i < number; i++)
             {
-                note = note.Step(Steps[(i - 1) % Steps.Length]);
+                note = note.Step(_steps[(i - 1) % _steps.Length]);
             }
 
             return note;
@@ -68,6 +72,24 @@ namespace SoundThing.Services
             var newRoot = new NoteInfo(Root.Note, octave, Root.VolumePercent);
             return Construct(GetType(), newRoot);
         }
+
+        public Scale Sharp(int index)
+        {
+            var newScale = Construct(GetType(), Root);
+            newScale._steps[index - 1] = _steps[index - 1] + 1;
+            newScale._steps[index] = _steps[index] - 1;
+
+            return newScale;
+        }
+
+        public Scale Flat(int index)
+        {
+            var newScale = Construct(GetType(), Root);
+            newScale._steps[index - 1] = _steps[index - 1] - 1;
+            newScale._steps[index] = _steps[index] + 1;
+
+            return newScale;
+        }
     }
 
     class MajorScale : Scale
@@ -76,7 +98,7 @@ namespace SoundThing.Services
         {
         }
 
-        protected override ScaleStep[] Steps => new ScaleStep[]
+        protected override ScaleStep[] CreateSteps() => new ScaleStep[]
         {
             ScaleStep.Whole,
             ScaleStep.Whole,
@@ -94,7 +116,7 @@ namespace SoundThing.Services
         {
         }
 
-        protected override ScaleStep[] Steps => new ScaleStep[]
+        protected override ScaleStep[] CreateSteps() => new ScaleStep[]
         {
             ScaleStep.Whole,
             ScaleStep.Half,
@@ -111,7 +133,7 @@ namespace SoundThing.Services
         {
         }
 
-        protected override ScaleStep[] Steps => new ScaleStep[]
+        protected override ScaleStep[] CreateSteps() => new ScaleStep[]
         {
             ScaleStep.Whole,
             ScaleStep.Half,
@@ -129,7 +151,7 @@ namespace SoundThing.Services
         {
         }
 
-        protected override ScaleStep[] Steps => new ScaleStep[]
+        protected override ScaleStep[] CreateSteps() => new ScaleStep[]
         {
             ScaleStep.Whole,
             ScaleStep.Half,
@@ -147,7 +169,7 @@ namespace SoundThing.Services
         {
         }
 
-        protected override ScaleStep[] Steps => new ScaleStep[]
+        protected override ScaleStep[] CreateSteps() => new ScaleStep[]
         {
             ScaleStep.Whole,
             ScaleStep.Whole,
@@ -165,7 +187,7 @@ namespace SoundThing.Services
         {
         }
 
-        protected override ScaleStep[] Steps => new ScaleStep[]
+        protected override ScaleStep[] CreateSteps() => new ScaleStep[]
         {
             ScaleStep.Half,
             ScaleStep.AugmentedSecond,
@@ -183,7 +205,7 @@ namespace SoundThing.Services
         {
         }
 
-        protected override ScaleStep[] Steps => new ScaleStep[]
+        protected override ScaleStep[] CreateSteps() => new ScaleStep[]
         {
             ScaleStep.Half,
             ScaleStep.Half,

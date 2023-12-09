@@ -4,18 +4,18 @@ using System;
 
 namespace SoundThing.Services.Instruments
 {
-    class TestInstrument : Instrument
+    class PluckyInstrument : Instrument
     {
         public override Envelope? Envelope { get; } =
                         new Envelope(
-                            sustainVolumePercent: 0.7,
+                            sustainVolumePercent: 0.4,
                             attack: 0.0,
-                            decay: 0.2,
-                            release: 5.0);
+                            decay: 0.05,
+                            release: 0.05);
 
         protected override Func<int, NoteEvent, short> NoteGenerator =>
             (int sampleIndex, NoteEvent noteEvent) =>
-                Generator.Square
+                Generator.Sine
                          .AddOvertones(6)
                          .Clip(1.0)
                          (sampleIndex, noteEvent);

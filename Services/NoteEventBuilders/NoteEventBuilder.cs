@@ -39,6 +39,55 @@ namespace SoundThing.Services.NoteEventBuilders
         public NoteEventBuilder Add(NoteType noteType, params int[] notes)
            => AddEvents(noteType, notes.Select(ToNoteInfo).ToArray());
 
+        public NoteEventBuilder Add(string notes)
+        {
+            foreach (var note in notes.Split(' '))
+            {
+                bool dotted = note.EndsWith('.');
+
+                var num = int.Parse(note.Substring(0, 1));
+
+                if(dotted)
+                {
+                    switch (note[1])
+                    {
+                        case 'e':
+                            Add(NoteType.DottedEighth, num);
+                            break;
+                        case 'q':
+                            Add(NoteType.DottedQuarter, num);
+                            break;
+                        case 'h':
+                            Add(NoteType.DottedHalf, num);
+                            break;
+                        default:
+                            Add(NoteType.DottedWhole, num);
+                            break;
+                    };
+                }
+                else
+                {
+                    switch(note[1])
+                    {
+                        case 'e':
+                            Add(NoteType.Eighth, num);
+                            break;
+                        case 'q':
+                            Add(NoteType.Quarter, num);
+                            break;
+                        case 'h':
+                            Add(NoteType.Half, num);
+                            break;
+                        default:
+                            Add(NoteType.Whole, num);
+                            break;
+                    };
+                }
+            }
+
+            return this;
+        }
+
         public NoteEventBuilder AddEighths(params int[] notes) => Add(NoteType.Eighth, notes);
         public NoteEventBuilder AddQuarters(params int[] notes) => Add(NoteType.Quarter, notes);
         public NoteEventBuilder AddHalves(params int[] notes) => Add(NoteType.Half, notes);

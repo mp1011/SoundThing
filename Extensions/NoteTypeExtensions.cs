@@ -11,11 +11,27 @@ namespace SoundThing.Extensions
         {
             var secondsPerBeat = 60.0 / bpm;
 
-            var noteFraction = 1.0 / (int)noteType;
+            var noteFraction = noteType.GetNoteFraction();
             var beatNoteFraction = 1.0 / (int)beatNote;
 
             var ratio = noteFraction / beatNoteFraction;
             return secondsPerBeat * ratio;
         }
+
+        public static double GetNoteFraction(this NoteType noteType) =>
+            noteType switch
+            {
+                NoteType.Whole => 1.0,
+                NoteType.Half => 0.5,
+                NoteType.Quarter => 0.25,
+                NoteType.Eighth => 1.0 / 8.0,
+                NoteType.Sixteenth => 1.0 / 8.0,
+                NoteType.DottedWhole => NoteType.Whole.GetNoteFraction() * 1.5,
+                NoteType.DottedHalf => NoteType.Half.GetNoteFraction() * 1.5,
+                NoteType.DottedQuarter => NoteType.Quarter.GetNoteFraction() * 1.5,
+                NoteType.DottedEighth => NoteType.Eighth.GetNoteFraction() * 1.5,
+                NoteType.DottedSixteenth => NoteType.Sixteenth.GetNoteFraction() * 1.5,
+                _ => 0.0
+            };
     }
 }

@@ -11,9 +11,11 @@ namespace SoundThing.Services
     {
         private Instrument _instrument;
         private NoteEvent[] _events;
+        public int Channel { get; }
 
-        public Player(Instrument instrument, IEnumerable<NoteEvent> events)
+        public Player(Instrument instrument, int channel, IEnumerable<NoteEvent> events)
         {
+            Channel = channel;
             _instrument = instrument;
             _events = events
                 .AdjustToEnvelope(_instrument.Envelope)
