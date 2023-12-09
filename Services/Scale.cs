@@ -18,6 +18,7 @@ namespace SoundThing.Services
         MelodicMinorScale,
         HarmonicMinorScale,
         NaturalMinorScale,
+        PhrygianScale,
         PhrygianDominantScale,
         ChromaticScale,
         LydianMode
@@ -33,9 +34,21 @@ namespace SoundThing.Services
 
         public NoteInfo Root { get; }
 
+        public bool IsDiatonic => _steps.Length == 7;
+
         protected abstract ScaleStep[] CreateSteps();
 
         private ScaleStep[] _steps;
+
+        public NoteInfo[] GetChord(int number)
+        {
+            return new NoteInfo[]
+            {
+                GetNote(number),
+                GetNote(number + 2),
+                GetNote(number + 4)
+            };
+        }
 
         public NoteInfo GetNote(int number)
         {
@@ -90,6 +103,9 @@ namespace SoundThing.Services
 
             return newScale;
         }
+
+        public override string ToString()
+            => $"{Root} {GetType().Name.Replace("Scale", "").Replace("Mode", "")}";
     }
 
     class MajorScale : Scale
@@ -178,6 +194,23 @@ namespace SoundThing.Services
             ScaleStep.Whole,
             ScaleStep.Whole,
             ScaleStep.Half
+        };
+    }
+    class PhrygianScale : Scale
+    {
+        public PhrygianScale(NoteInfo root) : base(root)
+        {
+        }
+
+        protected override ScaleStep[] CreateSteps() => new ScaleStep[]
+        {
+            ScaleStep.Half,
+            ScaleStep.Whole,
+            ScaleStep.Whole,
+            ScaleStep.Whole,
+            ScaleStep.Half,
+            ScaleStep.Whole,
+            ScaleStep.Whole
         };
     }
 

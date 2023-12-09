@@ -15,5 +15,10 @@ namespace SoundThing.Extensions
             var fifthNote = fifthFrequency.GetNote();
             return new NoteInfo(fifthNote.Item1, fifthNote.Item2, note.VolumePercent);
         }
+
+        public static Interval IntervalTo(this NoteInfo note, NoteInfo other)
+        {
+            return (Interval)(other.Semitones - note.Semitones);
+        }
     }
 }

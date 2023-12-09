@@ -51,8 +51,7 @@ namespace SoundThing.Songs
             var player1 = new Player(new TestInstrument(), 0, noteBuilder);
             var player2 = new Player(new SawInstrument(), 2, noteBuilder2);
             var player3 = new Player(new TestDrumKit(), 1, drumBuilder);
-            var band = new Band(player1, player2, player3);
-            return band.GenerateSounds();
+            return Band.CreateSounds(player1);
         }
 
         public static SoundEffectInstance[] ItsyBitsySpider()
@@ -61,7 +60,7 @@ namespace SoundThing.Songs
               new NoteInfo(MusicNote.C, 3, 1.0))
                 .Flat(6);
 
-            var noteBuilder = new NoteEventBuilder(80, NoteType.Quarter, scale);
+            var noteBuilder = new NoteEventBuilder(160, NoteType.Quarter, scale);
 
             noteBuilder
                 .Add("1e 4q 3e 4q 5e 6q. 6q 6e 5q 4e 5q 6e 4q. 0q.")
@@ -69,9 +68,8 @@ namespace SoundThing.Songs
                 .Add("4q. 4q 5e 6q. 6q. 5q 4e 5q 6e 4q. 1q 1e")
                 .Add("4q 3e 4q 5e 6q. 6q 6e 5q 4e 5q 6e 4h. 0w");
 
-            var player1 = new Player(new PluckyInstrument(), 0, noteBuilder);
-            var band = new Band(player1);
-            return band.GenerateSounds();
+            var player= new Player(new PluckyInstrument(), 0, noteBuilder);
+            return Band.CreateSounds(player);
         }
     }
 }

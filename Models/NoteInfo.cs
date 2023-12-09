@@ -16,6 +16,8 @@ namespace SoundThing.Models
         public int Octave { get; }
         public double VolumePercent { get; }
 
+        public int Semitones => (Octave * 12) + (int)Note;
+
         public NoteInfo ChangeVolumePercent(double newVolumePercent)
         {
             return new NoteInfo(Note, Octave, newVolumePercent);
@@ -24,6 +26,11 @@ namespace SoundThing.Models
         public NoteInfo Step(ScaleStep step)
         {
             return Step((int)step);
+        }
+
+        public NoteInfo Step(Interval interval)
+        {
+            return Step((int)interval);
         }
 
         public NoteInfo Step(int amount)
@@ -42,6 +49,11 @@ namespace SoundThing.Models
 
         public static implicit operator SoundInfo(NoteInfo n) =>
             new SoundInfo(n.Note.GetFrequency(n.Octave), n.VolumePercent);
+
+        public override string ToString()
+        {
+            return $"{Note.ToString().Replace("Sharp","#")}{Octave}";
+        }
     }
 
 }

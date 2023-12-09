@@ -115,6 +115,17 @@ namespace SoundThing.Services.NoteEventBuilders
         public NoteEventBuilder AddChord(NoteType noteType, params int[] notes)
            => AddEventGroup(noteType, notes.Select(ToNoteInfo).ToArray());
 
+        public NoteEventBuilder AddChord(NoteType noteType, Chord chord)
+            => AddEventGroup(noteType, chord.Notes.ToArray());
+
+        public NoteEventBuilder AddChords(NoteType noteType, params int[] chordNumbers)
+        {
+            foreach(var number in chordNumbers)            
+                AddEventGroup(noteType, _scale.GetChord(number));
+            
+            return this;
+        }
+
         private NoteEventBuilder AddEventGroup(NoteType noteType, params NoteInfo[] notes)
         {
             var duration = noteType.GetDuration(_beatNote, _bpm);
@@ -152,6 +163,11 @@ namespace SoundThing.Services.NoteEventBuilders
         public NoteEventBuilder SetOctave(int octave)
         {
             _scale = _scale.ChangeOctave(octave);
+            return this;
+        }
+        public NoteEventBuilder SetScale(Scale scale)
+        {
+            _scale = scale;
             return this;
         }
 

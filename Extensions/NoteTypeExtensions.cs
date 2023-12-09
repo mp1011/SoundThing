@@ -12,7 +12,7 @@ namespace SoundThing.Extensions
             var secondsPerBeat = 60.0 / bpm;
 
             var noteFraction = noteType.GetNoteFraction();
-            var beatNoteFraction = 1.0 / (int)beatNote;
+            var beatNoteFraction = beatNote.GetNoteFraction();
 
             var ratio = noteFraction / beatNoteFraction;
             return secondsPerBeat * ratio;

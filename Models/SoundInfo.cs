@@ -22,6 +22,8 @@ namespace SoundThing.Models
         {
         }
 
+        public SoundInfo ChangeVolumePercent(double volume) => new SoundInfo(Frequency, volume);
+
         public NoteInfo ToNoteInfo() => this;
 
         public static implicit operator NoteInfo(SoundInfo s)

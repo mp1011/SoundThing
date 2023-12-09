@@ -52,11 +52,29 @@ namespace SoundThing.Extensions
                 short value = generator(sampleIndex, soundInfo);
                 for (int i = 0; i < overtones; i++)
                 {
-                    soundInfo = new SoundInfo(soundInfo.Frequency * (i + 2), soundInfo.VolumePercent / 2);
+                    soundInfo = new SoundInfo(soundInfo.Frequency * (double)(i + 2), soundInfo.VolumePercent / 2);
                     value += generator(sampleIndex, soundInfo);
                 }
                 return value;
             };
+        }
+
+        public static Func<int, SoundInfo, short> Lfo(this Func<int, SoundInfo, short> generator, 
+            double frequency,
+            double volumeA,
+            double volumeB)
+        {
+            var samplesPerPulse = frequency * (double)Constants.SamplesPerSecond;
+
+            return (int sampleIndex, SoundInfo soundInfo) =>
+            {
+                var pulseIndex = sampleIndex % (samplesPerPulse * 2);
+                if (pulseIndex > samplesPerPulse)
+                    return generator(sampleIndex, soundInfo.ChangeVolumePercent(volumeA));
+                else
+                    return generator(sampleIndex, soundInfo.ChangeVolumePercent(volumeB));
+            };
+
         }
 
         public static Func<int, SoundInfo, short> Gain(this Func<int, SoundInfo, short> generator, double gainPercent)

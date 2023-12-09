@@ -9,6 +9,12 @@ namespace SoundThing.Services
     {
         private Player[] _players;
 
+        public static SoundEffectInstance[] CreateSounds(params Player[] players)
+        {
+            var band = new Band(players);
+            return band.GenerateSounds();
+        }
+
         public Band(params Player[] players)
         {
             _players = players;
@@ -30,8 +36,7 @@ namespace SoundThing.Services
 
 
             var sfx = SoundEffectMaker.Create(totalSamples,
-                soundGenerator
-                    .Clip(1.0));
+                soundGenerator);
 
             return sfx.CreateInstance();
         }
