@@ -43,7 +43,8 @@ namespace SoundThing.Songs
 
             var noteBuilder = new NoteEventBuilder(120,
                  NoteType.Quarter,
-                 new PhrygianDominantScale(new NoteInfo(MusicNote.D, 2, 1.0)));
+                 new PhrygianDominantScale(
+                     new ScaleParameters(root: new NoteInfo(MusicNote.D, 2, 1.0))));
 
             var builderA = noteBuilder.NewSection()
                        .AddArpeggio(NoteType.Sixteenth, ArpeggioStyle.Rising, 1, 1, 1, 1)
@@ -70,7 +71,8 @@ namespace SoundThing.Songs
         {
             var noteBuilder = new NoteEventBuilder(120, 
                 NoteType.Quarter, 
-                new MajorScale(new NoteInfo(MusicNote.C, 3, 1.0)));
+                new MajorScale(
+                    new ScaleParameters(root: new NoteInfo(MusicNote.C, 3, 1.0))));
 
             foreach (ScaleType scaleType in Enum.GetValues(typeof(ScaleType)))
             {

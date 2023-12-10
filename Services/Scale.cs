@@ -24,22 +24,66 @@ namespace SoundThing.Services
         LydianMode
     }
 
-    abstract class Scale
+    struct ScaleParameters
     {
-        protected Scale(NoteInfo root)
+        public ScaleParameters(NoteInfo root, int[] sharps=null, int[] flats = null)
         {
+            Sharps = sharps ?? Array.Empty<int>();
+            Flats = flats ?? Array.Empty<int>();
             Root = root;
-            _steps = CreateSteps();
         }
+
+        public readonly int[] Sharps { get; }
+        public readonly int[] Flats { get; }
 
         public NoteInfo Root { get; }
 
+        public ScaleParameters ChangeRoot(NoteInfo newRoot) =>
+            new ScaleParameters(newRoot, Sharps, Flats);
+
+        public ScaleParameters ChangeSharps(IEnumerable<int> newSharps) =>
+            new ScaleParameters(Root, newSharps.ToArray(), Flats);
+
+        public ScaleParameters ChangeFlats(IEnumerable<int> newFlats) =>
+            new ScaleParameters(Root, Sharps, newFlats.ToArray());
+
+    }
+
+    abstract class Scale
+    {
+        protected Scale(ScaleParameters scaleParameters)
+        {
+            _parameters = scaleParameters;
+            _steps = CreateSteps(_parameters.Sharps, _parameters.Flats);
+        }
+
+        private readonly ScaleParameters _parameters;
+
+        public NoteInfo Root => _parameters.Root;
+
         public bool IsDiatonic => _steps.Length == 7;
 
+        private ScaleStep[] CreateSteps(int[] sharps, int[] flats)
+        {
+            var steps = CreateSteps();
+            foreach(var index in sharps)
+            {
+                steps[index - 1] = steps[index - 1] + 1;
+                steps[index] = steps[index] - 1;
+            }
+
+            foreach (var index in flats)
+            {
+                steps[index - 1] = steps[index - 1] - 1;
+                steps[index] = steps[index] + 1;
+            }
+
+            return steps;
+        }
         protected abstract ScaleStep[] CreateSteps();
 
-        private ScaleStep[] _steps;
-
+        private readonly ScaleStep[] _steps;
+      
         public NoteInfo[] GetChord(int number)
         {
             return new NoteInfo[]
@@ -70,49 +114,51 @@ namespace SoundThing.Services
         }
 
         public static Scale Create(ScaleType type, NoteInfo root)
+            => Create(type, 
+                      new ScaleParameters(root));
+        
+        public static Scale Create(ScaleType type, ScaleParameters parameters)
         {
             Type scaleType = typeof(Scale).Assembly.GetType($"SoundThing.Services.{type}");
-            return Construct(scaleType, root);
+            return Construct(scaleType, parameters);
         }
 
-        private static Scale Construct(Type scaleType, NoteInfo root)
+        private static Scale Construct(Type scaleType, ScaleParameters parameters)
         {
-            return Activator.CreateInstance(scaleType, root) as Scale;
+            return Activator.CreateInstance(scaleType, parameters) as Scale;
         }
 
         public Scale ChangeOctave(int octave)
         {
             var newRoot = new NoteInfo(Root.Note, octave, Root.VolumePercent);
-            return Construct(GetType(), newRoot);
+            return Construct(GetType(), _parameters.ChangeRoot(newRoot));
         }
 
         public Scale ChangeKey(MusicNote note)
         {
             var newRoot = new NoteInfo(note, Root.Octave, Root.VolumePercent);
-            return Construct(GetType(), newRoot);
+            return Construct(GetType(), _parameters.ChangeRoot(newRoot));
         }
 
         public Scale ChangeScaleType(ScaleType type)
         {
-            return Create(type, Root);
+            return Create(type, _parameters);
         }
 
         public Scale Sharp(int index)
         {
-            var newScale = Construct(GetType(), Root);
-            newScale._steps[index - 1] = _steps[index - 1] + 1;
-            newScale._steps[index] = _steps[index] - 1;
+            var newSharps = _parameters.Sharps.ToList();
+            newSharps.Add(index);
 
-            return newScale;
+            return Construct(GetType(), _parameters.ChangeSharps(newSharps));
         }
 
         public Scale Flat(int index)
         {
-            var newScale = Construct(GetType(), Root);
-            newScale._steps[index - 1] = _steps[index - 1] - 1;
-            newScale._steps[index] = _steps[index] + 1;
+            var newFlats = _parameters.Flats.ToList();
+            newFlats.Add(index);
 
-            return newScale;
+            return Construct(GetType(), _parameters.ChangeFlats(newFlats));
         }
 
         public override string ToString()
@@ -121,7 +167,7 @@ namespace SoundThing.Services
 
     class MajorScale : Scale
     {
-        public MajorScale(NoteInfo root) : base(root)
+        public MajorScale(ScaleParameters parameters) : base(parameters)
         {
         }
 
@@ -139,7 +185,7 @@ namespace SoundThing.Services
 
     class NaturalMinorScale : Scale
     {
-        public NaturalMinorScale(NoteInfo root) : base(root)
+        public NaturalMinorScale(ScaleParameters parameters) : base(parameters)
         {
         }
 
@@ -156,7 +202,7 @@ namespace SoundThing.Services
     }
     class HarmonicMinorScale : Scale
     {
-        public HarmonicMinorScale(NoteInfo root) : base(root)
+        public HarmonicMinorScale(ScaleParameters parameters) : base(parameters)
         {
         }
 
@@ -174,7 +220,7 @@ namespace SoundThing.Services
 
     class MelodicMinorScale : Scale
     {
-        public MelodicMinorScale(NoteInfo root) : base(root)
+        public MelodicMinorScale(ScaleParameters parameters) : base(parameters)
         {
         }
 
@@ -192,7 +238,7 @@ namespace SoundThing.Services
 
     class LydianMode : Scale
     {
-        public LydianMode(NoteInfo root) : base(root)
+        public LydianMode(ScaleParameters parameters) : base(parameters)
         {
         }
 
@@ -209,7 +255,7 @@ namespace SoundThing.Services
     }
     class PhrygianScale : Scale
     {
-        public PhrygianScale(NoteInfo root) : base(root)
+        public PhrygianScale(ScaleParameters parameters) : base(parameters)
         {
         }
 
@@ -227,7 +273,7 @@ namespace SoundThing.Services
 
     class PhrygianDominantScale : Scale
     {
-        public PhrygianDominantScale(NoteInfo root) : base(root)
+        public PhrygianDominantScale(ScaleParameters parameters) : base(parameters)
         {
         }
 
@@ -245,7 +291,7 @@ namespace SoundThing.Services
 
     class ChromaticScale : Scale
     {
-        public ChromaticScale(NoteInfo root) : base(root)
+        public ChromaticScale(ScaleParameters parameters) : base(parameters)
         {
         }
 
