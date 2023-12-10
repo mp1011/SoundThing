@@ -36,6 +36,11 @@
             return new NoteEvent(Note.ChangeSampleDuration(newDuration), SampleIndexStart);
         }
 
+        public NoteEvent ChangeStartTime(double newStart)
+        {
+            return new NoteEvent(Note, newStart);
+        }
+
         public NoteEvent ShiftStart(int amount) => new NoteEvent(Note, SampleIndexStart + amount);
 
         public static implicit operator SoundInfo(NoteEvent n) =>

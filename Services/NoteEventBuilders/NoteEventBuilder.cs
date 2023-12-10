@@ -33,6 +33,12 @@ namespace SoundThing.Services.NoteEventBuilders
                 .ToList();
         }
 
+        public NoteEventBuilder NewSection()
+        {
+            var newBuilder = new NoteEventBuilder(_bpm, _beatNote, _scale);
+            newBuilder._time = _time;
+            return newBuilder;
+        }
 
         public NoteEventBuilder Add(NoteType noteType, params DrumPart[] drumParts)
             => AddEvents(noteType, drumParts.Select(ToNoteInfo).ToArray());
@@ -123,6 +129,71 @@ namespace SoundThing.Services.NoteEventBuilders
             foreach(var number in chordNumbers)            
                 AddEventGroup(noteType, _scale.GetChord(number));
             
+            return this;
+        }
+
+        public NoteEventBuilder AddArpeggio(NoteType noteType, ArpeggioStyle style, params int[] chordNumbers)
+        {
+            foreach(var chordNumber in chordNumbers)
+            {
+                var chordNotes = _scale.GetChord(chordNumber);
+                AddArpeggio(noteType, style, chordNotes);
+            }
+            return this;
+        }
+
+        public NoteEventBuilder AddArpeggio(NoteType noteType, ArpeggioStyle style, Chord chord)
+        {
+            var chordNotes = chord.Notes.ToArray();
+            AddArpeggio(noteType, style, chordNotes);
+            
+            return this;
+        }
+
+        private NoteEventBuilder AddArpeggio(NoteType noteType, ArpeggioStyle style, NoteInfo[] notes)
+        {
+            int direction = style switch
+            {
+                ArpeggioStyle.RiseAndFall => 1,
+                ArpeggioStyle.Rising => 1,
+                _ => -1
+            };
+
+            int index = style switch
+            {
+                ArpeggioStyle.RiseAndFall => 0,
+                ArpeggioStyle.Rising => 0,
+                _ => notes.Length - 1
+            };
+
+            int length = style switch
+            {
+                ArpeggioStyle.RiseAndFall => (notes.Count() * 2) - 1,
+                ArpeggioStyle.FallAndRise => (notes.Count() * 2) - 1,
+                _ => notes.Length
+            };
+
+            for(int i = 0; i < length;i++)
+            {
+                AddEvents(noteType, notes[index]);
+                index += direction;
+                if(index < 0 || index == notes.Length)
+                {
+                    direction *= -1;
+                    index += direction*2;
+                }
+            }
+
+            return this;
+        }
+
+        public NoteEventBuilder AddSection(NoteEventBuilder section)
+        {
+            foreach(var e in section._noteEvents)
+            {
+                _noteEvents.Add(e.ChangeStartTime(_time));
+                _time += e.Duration;
+            }
             return this;
         }
 

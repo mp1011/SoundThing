@@ -22,7 +22,35 @@ namespace SoundThing.Songs
             return Band.CreateSounds(player);
         }
 
-        public static SoundEffectInstance[] ChordTest()
+        public static SoundEffectInstance[] ArpeggioTest()
+        {
+
+            var noteBuilder = new NoteEventBuilder(120,
+                 NoteType.Quarter,
+                 new PhrygianDominantScale(new NoteInfo(MusicNote.D, 2, 1.0)));
+
+            var builderA = noteBuilder.NewSection()
+                       .AddArpeggio(NoteType.Sixteenth, ArpeggioStyle.Rising, 1, 1, 1, 1)
+                       .AddArpeggio(NoteType.Sixteenth, ArpeggioStyle.Falling, 3, 3, 3, 3)
+                       .AddArpeggio(NoteType.Sixteenth, ArpeggioStyle.Rising, 1, 1, 1, 1)
+                       .AddArpeggio(NoteType.Sixteenth, ArpeggioStyle.Falling, 5, 5, 5, 5);
+
+            noteBuilder.AddSection(builderA);
+            noteBuilder.AddSection(builderA);
+
+            var builderB = noteBuilder.NewSection();
+            builderB.AddArpeggio(NoteType.Eighth, ArpeggioStyle.RiseAndFall, 2, 6, 2, 5);
+
+            noteBuilder.AddSection(builderB)
+                       .AddSection(builderA)
+                       .AddChords(NoteType.Quarter, 1, 3, 5, 7, 9);
+
+            var player = new Player(new PluckyInstrument(), 0, noteBuilder);
+
+            return Band.CreateSounds(player);
+        }
+
+        public static SoundEffectInstance[] AllScalesTest()
         {
             var noteBuilder = new NoteEventBuilder(120, 
                 NoteType.Quarter, 
@@ -36,8 +64,9 @@ namespace SoundThing.Songs
                 if (scale.IsDiatonic)
                 {
                     noteBuilder.SetScale(scale);
-                    noteBuilder.AddChords(NoteType.Quarter, 1, 1, 4, 4, 5, 5);
 
+                    noteBuilder.AddArpeggio(NoteType.Sixteenth, ArpeggioStyle.FallAndRise, 1, 4, 5);
+                   
                     var iChord = Chord.FromNotes(scale.GetChord(1));
                     var ivChord = Chord.FromNotes(scale.GetChord(4));
                     var vChord = Chord.FromNotes(scale.GetChord(5));
@@ -47,7 +76,7 @@ namespace SoundThing.Songs
             }
 
 
-            var player = new Player(new PadInstrument(), 0, noteBuilder);
+            var player = new Player(new PluckyInstrument(), 0, noteBuilder);
 
             return Band.CreateSounds(player);
 

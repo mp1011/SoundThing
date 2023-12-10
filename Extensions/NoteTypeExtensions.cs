@@ -25,7 +25,7 @@ namespace SoundThing.Extensions
                 NoteType.Half => 0.5,
                 NoteType.Quarter => 0.25,
                 NoteType.Eighth => 1.0 / 8.0,
-                NoteType.Sixteenth => 1.0 / 8.0,
+                NoteType.Sixteenth => 1.0 / 16.0,
                 NoteType.DottedWhole => NoteType.Whole.GetNoteFraction() * 1.5,
                 NoteType.DottedHalf => NoteType.Half.GetNoteFraction() * 1.5,
                 NoteType.DottedQuarter => NoteType.Quarter.GetNoteFraction() * 1.5,

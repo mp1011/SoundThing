@@ -26,8 +26,8 @@ namespace SoundThing
 
         protected override void Initialize()
         {
-             _sounds = InstrumentTests.ChordTest();
-          //  _sounds = NurseryRhymes.ItsyBitsySpider();
+           //  _sounds = InstrumentTests.ArpeggioTest();
+            _sounds = NurseryRhymes.ItsyBitsySpider();
          //   _sounds = NurseryRhymes.BaaBaaBlackSheep();
 
             base.Initialize();

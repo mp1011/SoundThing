@@ -61,7 +61,7 @@ namespace SoundThing.Songs
                 .Flat(6);
 
             var noteBuilder = new NoteEventBuilder(160, NoteType.Quarter, scale);
-
+           
             noteBuilder
                 .Add("1e 4q 3e 4q 5e 6q. 6q 6e 5q 4e 5q 6e 4q. 0q.")
                 .Add("6q. 6q 7e 8q. 8q. 7q 6e 7q 8e 6q. 0q.")
@@ -69,6 +69,7 @@ namespace SoundThing.Songs
                 .Add("4q 3e 4q 5e 6q. 6q 6e 5q 4e 5q 6e 4h. 0w");
 
             var player= new Player(new PluckyInstrument(), 0, noteBuilder);
+         
             return Band.CreateSounds(player);
         }
     }
