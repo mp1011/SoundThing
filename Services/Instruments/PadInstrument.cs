@@ -1,4 +1,5 @@
-﻿using SoundThing.Models;
+﻿using SoundThing.Extensions;
+using SoundThing.Models;
 using System;
 
 namespace SoundThing.Services.Instruments

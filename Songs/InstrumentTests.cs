@@ -22,6 +22,22 @@ namespace SoundThing.Songs
             return Band.CreateSounds(player);
         }
 
+        public static SoundEffectInstance[] PadTest()
+        {
+            var scale = Scale.Create(ScaleType.MajorScale,
+                new NoteInfo(MusicNote.C, 3, 1.0));
+
+
+            var noteBuilder = new NoteEventBuilder(120, NoteType.Quarter, scale);
+
+            noteBuilder.AddWholes(1, 3, 5)
+                       .AddChords(NoteType.Whole, 1, 3, 5);
+
+            var player = new Player(new PadInstrument(), 0, noteBuilder);
+            return Band.CreateSounds(player);
+        }
+
+
         public static SoundEffectInstance[] ArpeggioTest()
         {
 

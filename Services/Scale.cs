@@ -86,6 +86,17 @@ namespace SoundThing.Services
             return Construct(GetType(), newRoot);
         }
 
+        public Scale ChangeKey(MusicNote note)
+        {
+            var newRoot = new NoteInfo(note, Root.Octave, Root.VolumePercent);
+            return Construct(GetType(), newRoot);
+        }
+
+        public Scale ChangeScaleType(ScaleType type)
+        {
+            return Create(type, Root);
+        }
+
         public Scale Sharp(int index)
         {
             var newScale = Construct(GetType(), Root);

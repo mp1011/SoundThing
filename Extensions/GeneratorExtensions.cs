@@ -13,11 +13,51 @@ namespace SoundThing.Extensions
             };
         }
 
+        public static Func<int, SoundInfo, short> Add(this Func<int, SoundInfo, short> generator, Func<int, SoundInfo, short> generator2)
+        {
+            return (int sampleIndex, SoundInfo soundInfo) =>
+            {
+                return (short)(generator(sampleIndex, soundInfo) + generator2(sampleIndex, soundInfo));
+            };
+        }
+
+        public static Func<int, SoundInfo, short> Multiply(this Func<int, SoundInfo, short> generator, Func<int, short> generator2)
+        {
+            return (int sampleIndex, SoundInfo soundInfo) =>
+            {
+                return (short)(generator(sampleIndex, soundInfo) * generator2(sampleIndex));
+            };
+        }
+
+        public static Func<int, SoundInfo, short> Multiply(this Func<int, SoundInfo, short> generator, Func<int, SoundInfo, short> generator2)
+        {
+            return (int sampleIndex, SoundInfo soundInfo) =>
+            {
+                return (short)(generator(sampleIndex, soundInfo) * generator2(sampleIndex, soundInfo));
+            };
+        }
+
+        public static Func<int, SoundInfo, short> Multiply(this Func<int, SoundInfo, short> generator, double amount)
+        {
+            return (int sampleIndex, SoundInfo soundInfo) =>
+            {
+                return (short)(generator(sampleIndex, soundInfo) * amount);
+            };
+        }
+
         public static Func<int, short> Add(this Func<int, short> generator, Func<int, short> generator2)
         {
             return (int sampleIndex) =>
             {
                 return (short)(generator(sampleIndex) + generator2(sampleIndex));
+            };
+        }
+
+        public static Func<int, short> Multiply(this Func<int, short> generator, Func<int, short> generator2)
+        {
+            return (int sampleIndex) =>
+            {
+                return (short)(generator(sampleIndex) * generator2(sampleIndex));
             };
         }
 
