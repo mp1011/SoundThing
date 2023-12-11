@@ -41,6 +41,11 @@
             return new NoteEvent(Note, newStart);
         }
 
+        public NoteEvent ChangeOctave(int octave)
+        {
+            return new NoteEvent(Note.ChangeOctave(octave), SampleIndexStart);
+        }
+
         public NoteEvent ShiftStart(int amount) => new NoteEvent(Note, SampleIndexStart + amount);
 
         public static implicit operator SoundInfo(NoteEvent n) =>

@@ -27,5 +27,10 @@
         {
             return new PlayedNoteInfo(NoteInfo, newSampleDuration / (double)Constants.SamplesPerSecond);
         }
+
+        public PlayedNoteInfo ChangeOctave(int octave)
+        {
+            return new PlayedNoteInfo(NoteInfo.ChangeOctave(octave), Duration);
+        }
     }
 }

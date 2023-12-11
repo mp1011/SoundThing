@@ -15,6 +15,7 @@ namespace SoundThing.Services.NoteEventBuilders
         private NoteType _beatNote;
         private List<NoteEvent> _noteEvents = new List<NoteEvent>();
 
+        public int Octave => _scale.Root.Octave;
         public NoteEventBuilder(int bpm, NoteType beatNote, Scale scale)
         {
             _bpm = bpm;
@@ -57,6 +58,9 @@ namespace SoundThing.Services.NoteEventBuilders
                 {
                     switch (note[1])
                     {
+                        case 's':
+                            Add(NoteType.DottedSixteenth, num);
+                            break;
                         case 'e':
                             Add(NoteType.DottedEighth, num);
                             break;
@@ -75,6 +79,9 @@ namespace SoundThing.Services.NoteEventBuilders
                 {
                     switch(note[1])
                     {
+                        case 's':
+                            Add(NoteType.Sixteenth, num);
+                            break;
                         case 'e':
                             Add(NoteType.Eighth, num);
                             break;
@@ -191,9 +198,31 @@ namespace SoundThing.Services.NoteEventBuilders
         {
             foreach(var e in section._noteEvents)
             {
-                _noteEvents.Add(e.ChangeStartTime(_time));
+
+                _noteEvents.Add(e.ChangeStartTime(_time).ChangeOctave(_scale.Root.Octave));
                 _time += e.Duration;
             }
+            return this;
+        }
+
+        public NoteEventBuilder AddRounds(int voices, int beatOffset, NoteEventBuilder melody,
+            Func<NoteEventBuilder, int, NoteEventBuilder> changePart)
+        {
+            var startTime = _time;
+
+            AddSection(melody);
+
+            int part = 0;
+            var newBuilder = changePart(this, part);
+            while (--voices > 0)
+            {
+                newBuilder._time = startTime + beatOffset * _beatNote.GetDuration(_beatNote, _bpm);
+                startTime = _time;
+                newBuilder.AddSection(melody);
+                part++;
+                newBuilder = changePart(this, part);
+            }
+
             return this;
         }
 

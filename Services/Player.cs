@@ -18,8 +18,8 @@ namespace SoundThing.Services
             Channel = channel;
             _instrument = instrument;
             _events = events
-                .AdjustToEnvelope(_instrument.Envelope)
                 .OrderBy(p => p.SampleIndexStart)
+                .AdjustToEnvelope(_instrument.Envelope)                
                 .ToArray();
         }
 
