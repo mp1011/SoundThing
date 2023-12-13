@@ -1,10 +1,8 @@
 ﻿using SoundThing.Models;
 using SoundThing.Services;
 using SoundThing.Services.Instruments;
-using SoundThing.Services.NoteEventBuilders;
-using System;
+using SoundThing.Services.NoteBuilder;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SoundThing.Songs
 {

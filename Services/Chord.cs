@@ -83,6 +83,17 @@ namespace SoundThing.Services
             }
         }
 
+        public IEnumerable<int> NoteIndices
+        {
+            get
+            {
+                int index = 1;
+                yield return index;
+                foreach (var interval in Intervals)
+                    yield return index += (int)interval;
+            }
+        }
+
         public override string ToString()
          => $"{_root} {GetType().Name.Replace("Chord", "")}";
 

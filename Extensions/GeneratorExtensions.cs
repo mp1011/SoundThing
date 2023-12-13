@@ -1,4 +1,5 @@
 ﻿using SoundThing.Models;
+using SoundThing.Services;
 using System;
 
 namespace SoundThing.Extensions
@@ -60,6 +61,7 @@ namespace SoundThing.Extensions
                 return (short)(generator(sampleIndex) * generator2(sampleIndex));
             };
         }
+
 
         public static Func<int, SoundInfo, short> RootAndFifth(this Func<int, SoundInfo, short> generator)
         {

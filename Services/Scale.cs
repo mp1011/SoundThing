@@ -94,6 +94,9 @@ namespace SoundThing.Services
             };
         }
 
+        public int[] GetChordIndices(int number)
+            => new int[] { number, number + 2, number + 4 };
+
         public NoteInfo GetNote(int number)
         {
             if (number <= 0)

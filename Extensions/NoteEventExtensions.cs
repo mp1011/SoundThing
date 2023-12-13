@@ -1,4 +1,5 @@
 ﻿using SoundThing.Models;
+using SoundThing.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,11 @@ namespace SoundThing.Extensions
     {
         public static IEnumerable<NoteEvent> ToNoteEvents(this IEnumerable<NoteInfo> notes, double timePerNote, double startTime)
         {
-            return notes.Select((noteInfo,index) =>
-                 new NoteEvent(new PlayedNoteInfo(noteInfo, timePerNote), startTime + (timePerNote * index)));               
+            return notes.Select((noteInfo, index) =>
+                 new NoteEvent(new PlayedNoteInfo(noteInfo, timePerNote), startTime + (timePerNote * index)));
         }
 
-        public static IEnumerable<NoteEvent> AdjustToEnvelope (this IEnumerable<NoteEvent> noteEvents, Envelope? maybeEnvelope)
+        public static IEnumerable<NoteEvent> AdjustToEnvelope(this IEnumerable<NoteEvent> noteEvents, Envelope? maybeEnvelope)
         {
             if (maybeEnvelope == null)
                 return noteEvents;
@@ -95,6 +96,6 @@ namespace SoundThing.Extensions
                     return generator(sampleIndex, noteEvent.ChangeVolume(releaseVolume));
                 }
             };
-        }
+        }       
     }
 }

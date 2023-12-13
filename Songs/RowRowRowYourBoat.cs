@@ -1,7 +1,7 @@
 ﻿using SoundThing.Models;
 using SoundThing.Services;
 using SoundThing.Services.Instruments;
-using SoundThing.Services.NoteEventBuilders;
+using SoundThing.Services.NoteBuilder;
 using System.Collections.Generic;
 
 namespace SoundThing.Songs
@@ -23,15 +23,34 @@ namespace SoundThing.Songs
 
                 var noteBuilder = new NoteEventBuilder(scale: Scale, bpm: BPM, beatNote: NoteType.Quarter);
                 noteBuilder.AddRounds(4, 12, melody,
-                    (b, part) => b.SetOctave(b.Octave - 1));
+                    (b, part) =>
+                    {
+                        // octave 4
+                        // octave 3, up a fifth
+                        // octave 3
+                        // octave 2
 
-                yield return new Player(new PluckyInstrument(), 0, noteBuilder);
+                        var scale = Scale;
+                        if (part <= 1)
+                            scale = scale.ChangeOctave(Scale.Root.Octave - 1);
+                        else
+                            scale = scale.ChangeOctave(Scale.Root.Octave - 2);
+
+                        if (part == 0)
+                            scale = scale.ChangeKey(scale.GetNote(5).Note);
+
+                        return b.SetScale(scale);
+                    });
+
+                //    (b, part) => b.SetOctave(b.Octave - 1));
+
+                yield return new Player(new SquareInstrument(), 0, noteBuilder);
             }
         }
 
         protected override int BPM => 240;
 
         protected override Scale DefaultScale => Scale.Create(ScaleType.MajorScale,
-             new NoteInfo(MusicNote.C, 5, 1.0));
+             new NoteInfo(MusicNote.C, 4, 1.0));
     }
 }

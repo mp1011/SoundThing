@@ -1,14 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SoundThing.Extensions;
 using SoundThing.Models;
 using SoundThing.Services;
-using SoundThing.Services.Instruments;
-using SoundThing.Services.NoteEventBuilders;
 using SoundThing.Songs;
-using SoundThing.UI;
 using SoundThing.UI.Elements;
 using SoundThing.UI.Services;
 using System;

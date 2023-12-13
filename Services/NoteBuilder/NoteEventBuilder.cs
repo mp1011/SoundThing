@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SoundThing.Services.NoteEventBuilders
+namespace SoundThing.Services.NoteBuilder
 {
     class NoteEventBuilder : IEnumerable<NoteEvent>
     {
@@ -13,7 +13,7 @@ namespace SoundThing.Services.NoteEventBuilders
         private readonly int _bpm;
         private Scale _scale;
         private NoteType _beatNote;
-        private List<NoteEvent> _noteEvents = new List<NoteEvent>();
+        private List<EventBlock> _blocks = new List<EventBlock>();
 
         public int Octave => _scale.Root.Octave;
         public NoteEventBuilder(int bpm, NoteType beatNote, Scale scale)
@@ -23,13 +23,13 @@ namespace SoundThing.Services.NoteEventBuilders
             _scale = scale;
         }
 
-        public NoteEventBuilder(NoteEventBuilder cloneSource, Func<NoteEvent,NoteEvent> transform)
+        public NoteEventBuilder(NoteEventBuilder cloneSource, Func<EventBlock, EventBlock> transform)
         {
             _bpm = cloneSource._bpm;
             _beatNote = cloneSource._beatNote;
             _time = cloneSource._time;
 
-            _noteEvents = cloneSource._noteEvents
+            _blocks = cloneSource._blocks
                 .Select(transform)
                 .ToList();
         }
@@ -42,9 +42,9 @@ namespace SoundThing.Services.NoteEventBuilders
         }
 
         public NoteEventBuilder Add(NoteType noteType, params DrumPart[] drumParts)
-            => AddEvents(noteType, drumParts.Select(ToNoteInfo).ToArray());
+            => AddEvents(noteType, EventAction.PlayDrumPart, drumParts.Cast<int>().ToArray());
         public NoteEventBuilder Add(NoteType noteType, params int[] notes)
-           => AddEvents(noteType, notes.Select(ToNoteInfo).ToArray());
+           => AddEvents(noteType, EventAction.PlayScaleNote, notes);
 
         public NoteEventBuilder Add(string notes)
         {
@@ -54,7 +54,7 @@ namespace SoundThing.Services.NoteEventBuilders
 
                 var num = int.Parse(note.Substring(0, 1));
 
-                if(dotted)
+                if (dotted)
                 {
                     switch (note[1])
                     {
@@ -77,7 +77,7 @@ namespace SoundThing.Services.NoteEventBuilders
                 }
                 else
                 {
-                    switch(note[1])
+                    switch (note[1])
                     {
                         case 's':
                             Add(NoteType.Sixteenth, num);
@@ -106,17 +106,18 @@ namespace SoundThing.Services.NoteEventBuilders
         public NoteEventBuilder AddHalves(params int[] notes) => Add(NoteType.Half, notes);
         public NoteEventBuilder AddWholes(params int[] notes) => Add(NoteType.Whole, notes);
 
-        private NoteEventBuilder AddEvents(NoteType noteType, params NoteInfo[] notes)
+        private NoteEventBuilder AddEvents(NoteType noteType, EventAction action, params int[] arguments)
         {
-            foreach (var note in notes)
+            foreach (var arg in arguments)
             {
                 var duration = noteType.GetDuration(_beatNote, _bpm);
-                _noteEvents.Add(
-                    new NoteEvent(
-                        new PlayedNoteInfo(
-                            noteInfo: note,
-                            duration: duration),
-                        startTime: _time));
+                _blocks.Add(
+                    new EventBlock(
+                        start: _time,
+                        duration: duration,
+                        argument: arg,
+                        scale: _scale,
+                        action: action));
                 _time += duration;
             }
 
@@ -124,26 +125,26 @@ namespace SoundThing.Services.NoteEventBuilders
         }
 
         public NoteEventBuilder AddGroup(NoteType noteType, params DrumPart[] drums)
-            => AddEventGroup(noteType, drums.Select(ToNoteInfo).ToArray());
+            => AddEventGroup(noteType, EventAction.PlayDrumPart, drums.Cast<int>().ToArray());
         public NoteEventBuilder AddChord(NoteType noteType, params int[] notes)
-           => AddEventGroup(noteType, notes.Select(ToNoteInfo).ToArray());
+           => AddEventGroup(noteType, EventAction.PlayScaleNote, notes);
 
         public NoteEventBuilder AddChord(NoteType noteType, Chord chord)
-            => AddEventGroup(noteType, chord.Notes.ToArray());
+            => AddEventGroup(noteType, EventAction.PlayScaleNote, chord.NoteIndices.ToArray());
 
         public NoteEventBuilder AddChords(NoteType noteType, params int[] chordNumbers)
         {
-            foreach(var number in chordNumbers)            
-                AddEventGroup(noteType, _scale.GetChord(number));
-            
+            foreach (var number in chordNumbers)
+                AddEventGroup(noteType, EventAction.PlayScaleNote, _scale.GetChordIndices(number).ToArray());
+
             return this;
         }
 
-        public NoteEventBuilder AddArpeggio(NoteType noteType, ArpeggioStyle style, params int[] chordNumbers)
+        public NoteEventBuilder AddChordArpeggio(NoteType noteType, ArpeggioStyle style, params int[] chordNumbers)
         {
-            foreach(var chordNumber in chordNumbers)
+            foreach (var chordNumber in chordNumbers)
             {
-                var chordNotes = _scale.GetChord(chordNumber);
+                var chordNotes = _scale.GetChordIndices(chordNumber);
                 AddArpeggio(noteType, style, chordNotes);
             }
             return this;
@@ -151,13 +152,13 @@ namespace SoundThing.Services.NoteEventBuilders
 
         public NoteEventBuilder AddArpeggio(NoteType noteType, ArpeggioStyle style, Chord chord)
         {
-            var chordNotes = chord.Notes.ToArray();
+            var chordNotes = chord.NoteIndices.ToArray();
             AddArpeggio(noteType, style, chordNotes);
-            
+
             return this;
         }
 
-        private NoteEventBuilder AddArpeggio(NoteType noteType, ArpeggioStyle style, NoteInfo[] notes)
+        private NoteEventBuilder AddArpeggio(NoteType noteType, ArpeggioStyle style, int[] notes)
         {
             int direction = style switch
             {
@@ -180,14 +181,14 @@ namespace SoundThing.Services.NoteEventBuilders
                 _ => notes.Length
             };
 
-            for(int i = 0; i < length;i++)
+            for (int i = 0; i < length; i++)
             {
-                AddEvents(noteType, notes[index]);
+                AddEvents(noteType, EventAction.PlayScaleNote, notes[index]);
                 index += direction;
-                if(index < 0 || index == notes.Length)
+                if (index < 0 || index == notes.Length)
                 {
                     direction *= -1;
-                    index += direction*2;
+                    index += direction * 2;
                 }
             }
 
@@ -196,10 +197,9 @@ namespace SoundThing.Services.NoteEventBuilders
 
         public NoteEventBuilder AddSection(NoteEventBuilder section)
         {
-            foreach(var e in section._noteEvents)
+            foreach (var e in section._blocks)
             {
-
-                _noteEvents.Add(e.ChangeStartTime(_time).ChangeOctave(_scale.Root.Octave));
+                _blocks.Add(e.ChangeStartTime(_time).ChangeScale(_scale));
                 _time += e.Duration;
             }
             return this;
@@ -226,18 +226,19 @@ namespace SoundThing.Services.NoteEventBuilders
             return this;
         }
 
-        private NoteEventBuilder AddEventGroup(NoteType noteType, params NoteInfo[] notes)
+        private NoteEventBuilder AddEventGroup(NoteType noteType, EventAction action, params int[] arguments)
         {
             var duration = noteType.GetDuration(_beatNote, _bpm);
 
-            foreach (var note in notes)
+            foreach (var arg in arguments)
             {
-                _noteEvents.Add(
-                    new NoteEvent(
-                        new PlayedNoteInfo(
-                            noteInfo: note,
-                            duration: duration),
-                        startTime: _time));
+                _blocks.Add(
+                    new EventBlock(
+                        start: _time,
+                        duration: duration,
+                        argument: arg,
+                        scale: _scale,
+                        action: action));
             }
 
             _time += duration;
@@ -247,13 +248,13 @@ namespace SoundThing.Services.NoteEventBuilders
 
         public NoteEventBuilder Repeat(int times)
         {
-            var block = _noteEvents.ToArray();
-            var blockDuration = block.Max(p => p.SampleIndexEnd) - block.Min(p => p.SampleIndexStart);
+            var block = _blocks.ToArray();
+            var blockDuration = block.Max(p => p.End) - block.Min(p => p.Start);
             var shiftAmount = blockDuration;
 
             while (times-- > 0)
             {
-                _noteEvents.AddRange(block.Select(p => p.ShiftStart(shiftAmount)));
+                _blocks.AddRange(block.Select(p => p.AddStartTime(shiftAmount)));
                 shiftAmount += blockDuration;
                 _time += (blockDuration / (double)Constants.SamplesPerSecond);
             }
@@ -273,18 +274,33 @@ namespace SoundThing.Services.NoteEventBuilders
 
         private NoteInfo ToNoteInfo(DrumPart p) => new NoteInfo((MusicNote)p, _scale.Root.Octave, _scale.Root.VolumePercent);
 
-        private NoteInfo ToNoteInfo(int number) => _scale.GetNote(number);
+        private IEnumerable<NoteEvent> Build()
+            => _blocks
+                .OrderBy(p => p.Start)
+                .Select(GenerateEvent);
 
-        public IEnumerator<NoteEvent> GetEnumerator()
-        {
-            return ((IEnumerable<NoteEvent>)_noteEvents).GetEnumerator();
-        }
+        private NoteEvent GenerateEvent(EventBlock block)
+            => block.Action switch
+            {
+                EventAction.PlayScaleNote => new NoteEvent(
+                            new PlayedNoteInfo(
+                                noteInfo: block.Scale.GetNote(block.Argument),
+                                duration: block.Duration),
+                            startTime: block.Start),
+
+                EventAction.PlayDrumPart => new NoteEvent(
+                            new PlayedNoteInfo(
+                                noteInfo: ToNoteInfo((DrumPart)block.Argument),
+                                duration: block.Duration),
+                            startTime: block.Start),
+
+                _ => throw new Exception($"Unexpected event type {block.Action}")
+            };
+
+        IEnumerator<NoteEvent> IEnumerable<NoteEvent>.GetEnumerator()
+            => Build().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable)_noteEvents).GetEnumerator();
-        }
-
-
+            => Build().GetEnumerator();
     }
 }
