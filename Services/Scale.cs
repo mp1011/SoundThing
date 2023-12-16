@@ -143,6 +143,8 @@ namespace SoundThing.Services
             return Construct(GetType(), _parameters.ChangeRoot(newRoot));
         }
 
+        public Scale Copy() => Construct(GetType(), _parameters);
+
         public Scale ChangeScaleType(ScaleType type)
         {
             return Create(type, _parameters);

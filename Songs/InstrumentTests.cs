@@ -12,11 +12,15 @@ namespace SoundThing.Songs
         { 
             get
             {
-                var noteBuilder = new NoteEventBuilder(BPM, NoteType.Quarter, Scale);
-                noteBuilder.AddQuarters(1, 2, 3, 4, 5, 6, 7, 8, 7, 6, 5, 4, 3, 2, 1);
-                noteBuilder.AddChords(NoteType.Half, 1, 4, 5);
+                var nb1 = new NoteEventBuilder(BPM, NoteType.Quarter, Scale);
+                nb1.AddWholes(1, 4, 5, 2);
 
-                yield return new Player(new TestInstrument(), 0, noteBuilder);
+                var nb2 = new NoteEventBuilder(BPM, NoteType.Quarter, Scale);
+                nb2.Add(EventAction.ChangeInterval, "1e 1e 1q 2q 0e 1e");
+
+                var nb3 = nb1 + nb2;
+                nb3.AddWholes(1);
+                yield return new Player(new SawInstrument(), 0, nb3);
             } 
         }
 

@@ -50,5 +50,8 @@
 
         public static implicit operator SoundInfo(NoteEvent n) =>
             n.Note.NoteInfo;
+
+        public override string ToString()
+            => $"{Note.NoteInfo.Note} {StartTime} ({Duration})";
     }
 }
