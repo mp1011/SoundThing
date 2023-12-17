@@ -5,12 +5,12 @@ using System;
 namespace SoundThing.Services
 {
     abstract class Instrument
-    {   //fix me
+    { 
         public virtual short NoteValue(int sampleIndex, NoteEvent noteEvent) =>
             NoteGenerator
                 .ApplyEnvelope(Envelope, noteEvent)
                 (sampleIndex, noteEvent);
-        //fix me
+
         public virtual short NoteValue(int sampleIndex, ActiveNoteEvent noteEvent) =>
            NoteGenerator
                .ApplyEnvelope(noteEvent.MaybeEnvelope, noteEvent.Event)

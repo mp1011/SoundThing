@@ -2,6 +2,7 @@
 {
     enum Interval
     {
+        MinorSecond = 1,
         MajorSecond = 2,
         MinorThird = 3,
         MajorThird = 4,

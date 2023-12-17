@@ -48,6 +48,11 @@ namespace SoundThing.Models
                 newOctave++;
                 newNote -= 12;
             }
+            if (newNote < MusicNote.A)
+            {
+                newOctave--;
+                newNote += 12;
+            }
 
             return new NoteInfo(newNote, newOctave, VolumePercent);
         }

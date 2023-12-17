@@ -99,10 +99,18 @@ namespace SoundThing.Services
 
         public NoteInfo GetNote(int number)
         {
-            if (number <= 0)
+            if (number == 0)
                 return new NoteInfo(MusicNote.Rest, 0, 0.0);
 
             var note = Root;
+
+
+            if (number < 0)
+            {
+                note = note.ChangeOctave(note.Octave - 1);
+                number += (_steps.Length + 1);
+            }
+
             for (int i = 1; i < number; i++)
             {
                 note = note.Step(_steps[(i - 1) % _steps.Length]);

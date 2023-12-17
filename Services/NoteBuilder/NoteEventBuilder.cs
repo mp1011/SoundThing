@@ -49,59 +49,7 @@ namespace SoundThing.Services.NoteBuilder
 
         public NoteEventBuilder Add(string notes) => Add(EventAction.PlayScaleNote, notes);
         public NoteEventBuilder Add(EventAction action, string notes)
-        {
-            foreach (var note in notes.Split(' '))
-            {
-                bool dotted = note.EndsWith('.');
-
-                var num = int.Parse(note.Substring(0, 1));
-
-                if (dotted)
-                {
-                    switch (note[1])
-                    {
-                        case 's':
-                            AddEvents(NoteType.DottedSixteenth, action, num);
-                            break;
-                        case 'e':
-                            AddEvents(NoteType.DottedEighth, action, num);
-                            break;
-                        case 'q':
-                            AddEvents(NoteType.DottedQuarter, action, num);
-                            break;
-                        case 'h':
-                            AddEvents(NoteType.DottedHalf, action, num);
-                            break;
-                        default:
-                            AddEvents(NoteType.DottedWhole, action, num);
-                            break;
-                    };
-                }
-                else
-                {
-                    switch (note[1])
-                    {
-                        case 's':
-                            AddEvents(NoteType.Sixteenth, action, num);
-                            break;
-                        case 'e':
-                            AddEvents(NoteType.Eighth, action, num);
-                            break;
-                        case 'q':
-                            AddEvents(NoteType.Quarter, action, num);
-                            break;
-                        case 'h':
-                            AddEvents(NoteType.Half, action, num);
-                            break;
-                        default:
-                            AddEvents(NoteType.Whole, action, num);
-                            break;
-                    };
-                }
-            }
-
-            return this;
-        }
+            => NoteParser.AddEvents(this, action, notes);
 
         public NoteEventBuilder AddEighths(params int[] notes) => Add(NoteType.Eighth, notes);
         public NoteEventBuilder AddQuarters(params int[] notes) => Add(NoteType.Quarter, notes);
@@ -119,6 +67,7 @@ namespace SoundThing.Services.NoteBuilder
                         start: _time,
                         duration: duration,
                         argument: arg,
+                        adjust: 0,
                         scale: _scale));
                 _time += duration;
             }
@@ -231,7 +180,31 @@ namespace SoundThing.Services.NoteBuilder
             return this;
         }
 
-        private NoteEventBuilder AddEventGroup(NoteType noteType, EventAction action, params int[] arguments)
+        public NoteEventBuilder AddEventGroup(NoteType noteType, EventAction action,
+            IEnumerable<ScaleNoteIndex> notes)
+        {
+            var duration = noteType.GetDuration(_beatNote, _bpm);
+
+            foreach (var note in notes)
+            {
+                Scale noteScale = _scale;
+              
+                _blocks.Add(EventBlock.Create(
+                        action: action,
+                        start: _time,
+                        duration: duration,
+                        argument: note.Value,
+                        adjust: (int)note.Accidental,
+                        scale: noteScale));
+            }
+
+            _time += duration;
+
+            return this;
+
+        }
+
+        public NoteEventBuilder AddEventGroup(NoteType noteType, EventAction action, params int[] arguments)
         {
             var duration = noteType.GetDuration(_beatNote, _bpm);
 
@@ -242,6 +215,7 @@ namespace SoundThing.Services.NoteBuilder
                         start: _time,
                         duration: duration,
                         argument: arg,
+                        adjust: 0,
                         scale: _scale));
             }
 
@@ -287,7 +261,7 @@ namespace SoundThing.Services.NoteBuilder
                 .OfType<IGeneratorBlock>()
                 .ToArray();
 
-            var splicePoints = _blocks
+            var splicePoints = modifiers
                 .SelectMany(p => new[] { p.Start, p.End })
                 .OrderBy(p => p)
                 .Distinct()

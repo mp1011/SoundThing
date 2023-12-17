@@ -1,12 +1,42 @@
 ﻿using SoundThing.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Text;
 
 namespace SoundThing.Extensions
 {
     static class NoteTypeExtensions
     {
+        private static Dictionary<string, NoteType> _map;
+
+        static NoteTypeExtensions()
+        {
+            _map = new Dictionary<string, NoteType>();
+
+            foreach(NoteType value in Enum.GetValues(typeof(NoteType)))
+            {
+                var name = Enum.GetName(typeof(NoteType), value);
+                var field = typeof(NoteType).GetField(name);
+                var desc = field.GetCustomAttributes(false)
+                                .OfType<DescriptionAttribute>()
+                                .First();
+                _map[desc.Description] = value;
+            }
+        }
+        public static NoteType? TryParseNoteType(this char chr)
+            => TryParseNoteType(chr.ToString());
+
+        public static NoteType? TryParseNoteType(this string str)
+        {
+            NoteType noteType;
+            if (_map.TryGetValue(str, out noteType))
+                return noteType;
+            else
+                return null;
+        }
+
         public static double GetDuration(this NoteType noteType, NoteType beatNote, int bpm)
         {
             var secondsPerBeat = 60.0 / bpm;

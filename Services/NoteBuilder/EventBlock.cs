@@ -15,6 +15,7 @@ namespace SoundThing.Services.NoteBuilder
     interface IEventBlock
     {
         int Argument { get; }
+        int Adjust { get; }
         double Duration { get; }
         double End { get; }
         Scale Scale { get; }
@@ -58,26 +59,27 @@ namespace SoundThing.Services.NoteBuilder
                                        v => types.First(p => p.Name == v.ToString()));
         }
 
-        public static EventBlock Create(EventAction action, double start, double duration, int argument, Scale scale)
-            => Create(_types[action], start, duration, argument, scale);
+        public static EventBlock Create(EventAction action, double start, double duration, int argument, int adjust, Scale scale)
+            => Create(_types[action], start, duration, argument, adjust, scale);
 
-        protected static EventBlock Create(Type type, double start, double duration, int argument, Scale scale)
+        protected static EventBlock Create(Type type, double start, double duration, int argument, int adjust, Scale scale)
         {
             if (duration <= 0)
                 return null;
 
-            return (EventBlock)Activator.CreateInstance(type, start, duration, argument, scale);
+            return (EventBlock)Activator.CreateInstance(type, start, duration, argument, adjust, scale);
         }
 
-        protected static TBlock Create<TBlock>(Type type, double start, double duration, int argument, Scale scale)
+        protected static TBlock Create<TBlock>(Type type, double start, double duration, int argument, int adjust, Scale scale)
             where TBlock : class, IEventBlock
-            => Create(type, start, duration, argument, scale) as TBlock;
+            => Create(type, start, duration, argument, adjust, scale) as TBlock;
 
-        protected EventBlock(double start, double duration, int argument, Scale scale)
+        protected EventBlock(double start, double duration, int argument, int adjust, Scale scale)
         {
             Start = start;
             Duration = duration;
             Argument = argument;
+            Adjust = adjust;
             Scale = scale;
         }
 
@@ -85,6 +87,7 @@ namespace SoundThing.Services.NoteBuilder
         public double End => Start + Duration;
         public double Duration { get; }
         public int Argument { get; }
+        public int Adjust { get; }
         public Scale Scale { get; }
 
         public bool Overlaps(EventBlock other)
@@ -104,38 +107,45 @@ namespace SoundThing.Services.NoteBuilder
 
         public IEnumerable<EventBlock> SpliceAt(params double[] times)
         {
-            var spliceTarget = this;
-            EventBlock[] splice = null;
-            foreach (var time in times
-                                .Where(p => p >= Start && p <= End)
-                                .OrderBy(p => p)
-                                .Distinct())
+            if (times.Length == 0)
             {
-                splice = spliceTarget.SpliceAt(time);
-                if (splice[0] != null)
-                    yield return splice[0];
-
-                spliceTarget = splice[1];
-                if (spliceTarget == null)
-                    break;
+                yield return this;
             }
+            else
+            {
+                var spliceTarget = this;
+                EventBlock[] splice = null;
+                foreach (var time in times
+                                    .Where(p => p >= Start && p <= End)
+                                    .OrderBy(p => p)
+                                    .Distinct())
+                {
+                    splice = spliceTarget.SpliceAt(time);
+                    if (splice[0] != null)
+                        yield return splice[0];
 
-            if (splice != null && splice[1] != null)
-                yield return splice[1];
+                    spliceTarget = splice[1];
+                    if (spliceTarget == null)
+                        break;
+                }
+
+                if (splice != null && splice[1] != null)
+                    yield return splice[1];
+            }
         }
 
         public EventBlock ChangeStartTime(double newStart)
-            => Create(GetType(), newStart, Duration, Argument, Scale);
+            => Create(GetType(), newStart, Duration, Argument, Adjust, Scale);
 
         public EventBlock ChangeTimes(double newStart, double newEnd)
-            => Create(GetType(), newStart, newEnd, Argument, Scale);
+            => Create(GetType(), newStart, newEnd, Argument, Adjust, Scale);
 
         public EventBlock ChangeScale(Scale newScale)
-           => Create(GetType(), Start, Duration, Argument, newScale);
+           => Create(GetType(), Start, Duration, Argument, Adjust, newScale);
         public EventBlock AddStartTime(double amount)
-            => Create(GetType(), Start + amount, Duration, Argument, Scale);
+            => Create(GetType(), Start + amount, Duration, Argument, Adjust, Scale);
         public EventBlock Copy()
-           => Create(GetType(), Start, Duration, Argument, Scale);
+           => Create(GetType(), Start, Duration, Argument, Adjust, Scale);
 
         public override string ToString() =>
             $"{GetType().Name} {Start} ({Duration})";
@@ -154,20 +164,22 @@ namespace SoundThing.Services.NoteBuilder
 
     class PlayScaleNote : EventBlock, IGeneratorBlock
     {
-        public PlayScaleNote(double start, double duration, int argument, Scale scale) : base(start, duration, argument, scale)
+        public PlayScaleNote(double start, double duration, int argument, int adjust, Scale scale) 
+            : base(start, duration, argument, adjust, scale)
         {
         }
 
         public NoteEvent CreateEvent()
             => new NoteEvent(new PlayedNoteInfo(
-                                noteInfo: Scale.GetNote(Argument),
+                                noteInfo: Scale.GetNote(Argument).Step(Adjust),
                                 duration: Duration),
                             startTime: Start);
     }
 
     class PlayDrumPart : EventBlock, IGeneratorBlock
     {
-        public PlayDrumPart(double start, double duration, int argument, Scale scale) : base(start, duration, argument, scale)
+        public PlayDrumPart(double start, double duration, int argument, int adjust, Scale scale) 
+            : base(start, duration, argument, adjust, scale)
         {
         }
 
@@ -186,8 +198,8 @@ namespace SoundThing.Services.NoteBuilder
     {
         public bool ReplaceOriginal => true;
 
-        public ChangeInterval(double start, double duration, int argument, Scale scale) 
-            : base(start, duration, argument, scale)
+        public ChangeInterval(double start, double duration, int argument, int adjust, Scale scale) 
+            : base(start, duration, argument, adjust, scale)
         {
         }
 
@@ -200,6 +212,7 @@ namespace SoundThing.Services.NoteBuilder
                     targetBlock.Start,
                     targetBlock.Duration,
                     0,
+                    0,
                     targetBlock.Scale);
 
             if (Argument == 1)
@@ -209,7 +222,8 @@ namespace SoundThing.Services.NoteBuilder
                 targetBlock.GetType(),
                 targetBlock.Start, 
                 targetBlock.Duration, 
-                targetBlock.Argument + (Argument - 1), 
+                targetBlock.Argument + (Argument - 1),
+                targetBlock.Adjust,
                 targetBlock.Scale);
         }
     }
@@ -218,8 +232,8 @@ namespace SoundThing.Services.NoteBuilder
     {
         public bool ReplaceOriginal => false;
 
-        public AddInterval(double start, double duration, int argument, Scale scale)
-            : base(start, duration, argument, scale)
+        public AddInterval(double start, double duration, int argument, int adjust, Scale scale)
+            : base(start, duration, argument, adjust, scale)
         {
         }
 
@@ -234,6 +248,7 @@ namespace SoundThing.Services.NoteBuilder
                 targetBlock.Start,
                 targetBlock.Duration,
                 targetBlock.Argument + (Argument-1),
+                targetBlock.Adjust,
                 targetBlock.Scale);
         }
     }
