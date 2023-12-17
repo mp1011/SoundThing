@@ -201,9 +201,12 @@ namespace SoundThing.Services.NoteBuilder
         {
             foreach (var e in section._blocks)
             {
-                _blocks.Add(e.ChangeStartTime(_time).ChangeScale(_scale));
-                _time += e.Duration;
+                _blocks.Add(e.AddStartTime(_time).ChangeScale(_scale));
             }
+
+            var sectionDuration = section._blocks.Max(p => p.End) - section._blocks.Min(p => p.Start);
+            _time += sectionDuration;
+
             return this;
         }
 
@@ -235,7 +238,7 @@ namespace SoundThing.Services.NoteBuilder
             foreach (var arg in arguments)
             {
                 _blocks.Add(EventBlock.Create(
-                        action: action, 
+                        action: action,
                         start: _time,
                         duration: duration,
                         argument: arg,
@@ -277,15 +280,14 @@ namespace SoundThing.Services.NoteBuilder
         private IEnumerable<NoteEvent> Build()
         {
             var modifiers = _blocks
-                .OfType<ModifierBlock>()
+                .OfType<IModifierBlock>()
                 .ToArray();
 
             var generators = _blocks
-                .OfType<GeneratorBlock>()
+                .OfType<IGeneratorBlock>()
                 .ToArray();
 
             var splicePoints = _blocks
-                .Union(modifiers)
                 .SelectMany(p => new[] { p.Start, p.End })
                 .OrderBy(p => p)
                 .Distinct()
@@ -294,22 +296,40 @@ namespace SoundThing.Services.NoteBuilder
             modifiers = modifiers
                 .SelectMany(p => p.SpliceAt(splicePoints))
                 .OrderBy(p => p.Start)
-                .OfType<ModifierBlock>()
+                .OfType<IModifierBlock>()
                 .ToArray();
 
             generators = generators
               .SelectMany(p => p.SpliceAt(splicePoints))
               .OrderBy(p => p.Start)
-              .OfType<GeneratorBlock>()
+              .OfType<IGeneratorBlock>()
               .ToArray();
 
-            return generators.Select(generator =>
+            return generators.SelectMany(generator =>
             {
                 var modified = modifiers
-                    .Where(p=>p.Start == generator.Start)
+                    .Where(p => p.Start == generator.Start)
                     .Aggregate(generator, (g, m) => m.Modify(g));
 
-                return (modified ?? generator).CreateEvent();
+                bool keepOriginal = (modified == null ||
+                    modifiers.Any(p => p.Start == generator.Start && !p.ReplaceOriginal));
+
+                if (keepOriginal && modified == null)
+                    return new[] { generator.CreateEvent() };
+                else if (keepOriginal)
+                {
+                    return new[] {
+                        generator.CreateEvent(),
+                        modified.CreateEvent()
+                    };
+                }
+                else if (modified != null)
+                {
+                    return new[] {
+                        modified.CreateEvent()
+                    };
+                }
+                else return Array.Empty<NoteEvent>();
             });
 
         }
@@ -321,6 +341,13 @@ namespace SoundThing.Services.NoteBuilder
             => Build().GetEnumerator();
 
         public static NoteEventBuilder operator +(NoteEventBuilder nb1, NoteEventBuilder nb2)
+        {
+            var newBuilder = new NoteEventBuilder(nb1, p => p.Copy());
+            newBuilder.AddSection(nb2);
+            return newBuilder;
+        }
+
+        public static NoteEventBuilder operator *(NoteEventBuilder nb1, NoteEventBuilder nb2)
         {
             var newBuilder = new NoteEventBuilder(nb1, p => p.Copy());
 
@@ -337,7 +364,15 @@ namespace SoundThing.Services.NoteBuilder
                 }
             }
 
+            newBuilder._blocks.Sort();
+
             return newBuilder;
+        }
+
+        public static NoteEventBuilder operator *(NoteEventBuilder nb1, int times)
+        {
+            var newBuilder = new NoteEventBuilder(nb1, p => p.Copy());
+            return newBuilder.Repeat(times - 1);
         }
     }
 }

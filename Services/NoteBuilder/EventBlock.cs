@@ -9,10 +9,41 @@ namespace SoundThing.Services.NoteBuilder
     {
         PlayScaleNote,
         PlayDrumPart,
-        ChangeInterval
+        ChangeInterval,
+        AddInterval
+    }
+    interface IEventBlock
+    {
+        int Argument { get; }
+        double Duration { get; }
+        double End { get; }
+        Scale Scale { get; }
+        double Start { get; }
+
+        EventBlock AddStartTime(double amount);
+        EventBlock ChangeScale(Scale newScale);
+        EventBlock ChangeStartTime(double newStart);
+        EventBlock ChangeTimes(double newStart, double newEnd);
+        EventBlock Copy();
+        bool Overlaps(EventBlock other);
+        EventBlock[] SpliceAt(double time);
+        IEnumerable<EventBlock> SpliceAt(params double[] times);
     }
 
-    abstract class EventBlock
+    interface IGeneratorBlock : IEventBlock
+    {
+        NoteEvent CreateEvent();
+    }
+
+    interface IModifierBlock : IEventBlock
+    {
+        bool ReplaceOriginal { get; }
+
+        TBlock Modify<TBlock>(TBlock targetBlock)
+            where TBlock : class, IEventBlock;
+    }
+
+    abstract class EventBlock : IEventBlock, IComparable<EventBlock>
     {
         private static Dictionary<EventAction, Type> _types;
         static EventBlock()
@@ -37,6 +68,10 @@ namespace SoundThing.Services.NoteBuilder
 
             return (EventBlock)Activator.CreateInstance(type, start, duration, argument, scale);
         }
+
+        protected static TBlock Create<TBlock>(Type type, double start, double duration, int argument, Scale scale)
+            where TBlock : class, IEventBlock
+            => Create(type, start, duration, argument, scale) as TBlock;
 
         protected EventBlock(double start, double duration, int argument, Scale scale)
         {
@@ -65,15 +100,15 @@ namespace SoundThing.Services.NoteBuilder
                 ChangeTimes(Start, time - Start),
                 ChangeTimes(time, End - time)
             };
-         }
+        }
 
         public IEnumerable<EventBlock> SpliceAt(params double[] times)
         {
             var spliceTarget = this;
             EventBlock[] splice = null;
-            foreach(var time in times
-                                .Where(p=> p >= Start && p <= End)
-                                .OrderBy(p=>p)
+            foreach (var time in times
+                                .Where(p => p >= Start && p <= End)
+                                .OrderBy(p => p)
                                 .Distinct())
             {
                 splice = spliceTarget.SpliceAt(time);
@@ -104,39 +139,33 @@ namespace SoundThing.Services.NoteBuilder
 
         public override string ToString() =>
             $"{GetType().Name} {Start} ({Duration})";
-    }
 
-    abstract class GeneratorBlock : EventBlock
-    {
-        protected GeneratorBlock(double start, double duration, int argument, Scale scale) : base(start, duration, argument, scale)
+        int IComparable<EventBlock>.CompareTo(EventBlock other)
         {
+            if (Start < other.Start)
+                return -1;
+            else if (Start == other.Start)
+                return 0;
+            else
+                return 1;
         }
-
-        public abstract NoteEvent CreateEvent();
     }
 
-    abstract class ModifierBlock : EventBlock
-    {
-        protected ModifierBlock(double start, double duration, int argument, Scale scale) : base(start, duration, argument, scale)
-        {
-        }
-        public abstract GeneratorBlock Modify(GeneratorBlock targetBlock);
-    }
 
-    class PlayScaleNote : GeneratorBlock
+    class PlayScaleNote : EventBlock, IGeneratorBlock
     {
         public PlayScaleNote(double start, double duration, int argument, Scale scale) : base(start, duration, argument, scale)
         {
         }
 
-        public override NoteEvent CreateEvent()
+        public NoteEvent CreateEvent()
             => new NoteEvent(new PlayedNoteInfo(
                                 noteInfo: Scale.GetNote(Argument),
                                 duration: Duration),
                             startTime: Start);
     }
 
-    class PlayDrumPart : GeneratorBlock
+    class PlayDrumPart : EventBlock, IGeneratorBlock
     {
         public PlayDrumPart(double start, double duration, int argument, Scale scale) : base(start, duration, argument, scale)
         {
@@ -146,37 +175,67 @@ namespace SoundThing.Services.NoteBuilder
             => new NoteInfo((MusicNote)p, Scale.Root.Octave, Scale.Root.VolumePercent);
 
 
-        public override NoteEvent CreateEvent()
+        public NoteEvent CreateEvent()
             => new NoteEvent(new PlayedNoteInfo(
                                 noteInfo: ToNoteInfo((DrumPart)Argument),
                                 duration: Duration),
                             startTime: Start);
     }
 
-    class ChangeInterval : ModifierBlock
+    class ChangeInterval : EventBlock, IModifierBlock
     {
+        public bool ReplaceOriginal => true;
+
         public ChangeInterval(double start, double duration, int argument, Scale scale) 
             : base(start, duration, argument, scale)
         {
         }
 
-        public override GeneratorBlock Modify(GeneratorBlock targetBlock)
+        public TBlock Modify<TBlock>(TBlock targetBlock)
+            where TBlock:class, IEventBlock
         {
             if(Argument == 0)
-                return Create(targetBlock.GetType(),
-                   targetBlock.Start,
-                   targetBlock.Duration,
-                   0,
-                   targetBlock.Scale) as GeneratorBlock;
+                return Create<TBlock>(
+                    targetBlock.GetType(),
+                    targetBlock.Start,
+                    targetBlock.Duration,
+                    0,
+                    targetBlock.Scale);
 
             if (Argument == 1)
                 return targetBlock;
 
-            return Create(targetBlock.GetType(), 
+            return Create<TBlock>(
+                targetBlock.GetType(),
                 targetBlock.Start, 
                 targetBlock.Duration, 
                 targetBlock.Argument + (Argument - 1), 
-                targetBlock.Scale) as GeneratorBlock;
+                targetBlock.Scale);
         }
     }
+
+    class AddInterval : EventBlock, IModifierBlock
+    {
+        public bool ReplaceOriginal => false;
+
+        public AddInterval(double start, double duration, int argument, Scale scale)
+            : base(start, duration, argument, scale)
+        {
+        }
+
+        public TBlock Modify<TBlock>(TBlock targetBlock)
+            where TBlock : class, IEventBlock
+        {
+            if (targetBlock.Argument == 0)
+                return null;
+
+            return Create<TBlock>(
+                targetBlock.GetType(),
+                targetBlock.Start,
+                targetBlock.Duration,
+                targetBlock.Argument + (Argument-1),
+                targetBlock.Scale);
+        }
+    }
+
 }
