@@ -8,13 +8,8 @@ namespace SoundThing.Services
     { 
         public virtual short NoteValue(int sampleIndex, NoteEvent noteEvent) =>
             NoteGenerator
-                .ApplyEnvelope(Envelope, noteEvent)
+                .ApplyEnvelope(noteEvent.MaybeEnvelope ?? Envelope, noteEvent)
                 (sampleIndex, noteEvent);
-
-        public virtual short NoteValue(int sampleIndex, ActiveNoteEvent noteEvent) =>
-           NoteGenerator
-               .ApplyEnvelope(noteEvent.MaybeEnvelope, noteEvent.Event)
-               (sampleIndex, noteEvent.Event);
 
         public virtual Envelope? Envelope => null;
 

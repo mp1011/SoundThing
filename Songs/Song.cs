@@ -21,7 +21,7 @@ namespace SoundThing.Songs
 
         protected abstract Scale DefaultScale { get; }
 
-        public SoundEffectInstance[] CreateSounds()
+        public DynamicAudio[] CreateSounds()
         {
             return Band.CreateSounds(Players.ToArray());
         }

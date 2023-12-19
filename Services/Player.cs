@@ -21,6 +21,10 @@ namespace SoundThing.Services
                 .OrderBy(p => p.SampleIndexStart)
                 .AdjustToEnvelope(_instrument.Envelope)                
                 .ToArray();
+
+            _events = _events
+                .Select(ApplyCutoff)
+                .ToArray();
         }
 
         public int TotalSamples
@@ -32,37 +36,15 @@ namespace SoundThing.Services
             }
         }
 
-        private Func<int, short> BaseSoundGenerator()
-        {
-            List<ActiveNoteEvent> playingNotes = new List<ActiveNoteEvent>();
-
-            return (int sampleIndex) => {
-                short noteValue = 0;
-
-                playingNotes.AddRange(_events
-                            .Where(p => p.SampleIndexStart == sampleIndex)
-                            .Select(ToActiveNoteEvent));
-
-                playingNotes.RemoveAll(p => sampleIndex > p.SampleIndexEnd);
-
-                foreach (var noteEvent in playingNotes)
-                {
-                    noteValue += _instrument.NoteValue(sampleIndex, noteEvent);
-                }
-
-                return noteValue;
-            };
-        }
-
-        private ActiveNoteEvent ToActiveNoteEvent(NoteEvent noteEvent)
+        private NoteEvent ApplyCutoff(NoteEvent noteEvent)
         {
             var nextNote = _events.FirstOrDefault(p => p.SampleIndexStart > noteEvent.SampleIndexStart
                                                        && !p.IsRest);
 
-            if (_instrument.Envelope == null 
+            if (_instrument.Envelope == null
                 || nextNote.SampleIndexStart == 0
                 || nextNote.SampleIndexStart > noteEvent.SampleIndexEnd)
-                return new ActiveNoteEvent(noteEvent, _instrument.Envelope);
+                return noteEvent;
 
             var targetSampleDuration = nextNote.SampleIndexStart - noteEvent.SampleIndexStart;
             var envelope = _instrument.Envelope.Value;
@@ -82,13 +64,17 @@ namespace SoundThing.Services
                 decay: envelope.Decay,
                 release: adjustedReleaseSamples / (double)Constants.SamplesPerSecond);
 
-            return new ActiveNoteEvent(noteEvent.ChangeSampleDuration(targetSampleDuration), adjustedEnvelope);             
+            return noteEvent.ChangeSampleDuration(targetSampleDuration)
+                            .SetEnvelope(adjustedEnvelope);                
         }
 
         public Func<int, short> SoundGenerator()
         {
-            return BaseSoundGenerator();
-                 //  .AddEcho(0.5);
+            return (int sampleIndex) => 
+                (short)_events
+                    .Where(p => p.SampleIndexStart <= sampleIndex 
+                                && p.SampleIndexEnd >= sampleIndex)
+                    .Sum(p => _instrument.NoteValue(sampleIndex, p));                           
         }
     }
 }

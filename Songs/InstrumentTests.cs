@@ -12,9 +12,18 @@ namespace SoundThing.Songs
         { 
             get
             {
-               // yield return BuilderCombinationTest();
-               yield return ParserTest();
+                //yield return BuilderCombinationTest();
+                //yield return ParserTest();
+                yield return NoteCutoffTest();
             } 
+        }
+
+        private Player NoteCutoffTest()
+        {
+            var builder = new NoteEventBuilder(BPM, NoteType.Quarter, Scale)
+                               .AddQuarters(1, 3, 5, 3, 1);
+
+            return new Player(new TestInstrument(), 0, builder);
         }
 
         private Player BuilderCombinationTest()

@@ -11,7 +11,7 @@ namespace SoundThing.Extensions
         public static IEnumerable<NoteEvent> ToNoteEvents(this IEnumerable<NoteInfo> notes, double timePerNote, double startTime)
         {
             return notes.Select((noteInfo, index) =>
-                 new NoteEvent(new PlayedNoteInfo(noteInfo, timePerNote), startTime + (timePerNote * index)));
+                 new NoteEvent(new PlayedNoteInfo(noteInfo, timePerNote), null, startTime + (timePerNote * index)));
         }
 
         public static IEnumerable<NoteEvent> AdjustToEnvelope(this IEnumerable<NoteEvent> noteEvents, Envelope? maybeEnvelope)
@@ -38,6 +38,7 @@ namespace SoundThing.Extensions
                 note: new PlayedNoteInfo(
                     noteInfo: noteEvent.Note.NoteInfo,
                     duration: adjustedDuration),
+                envelope: envelope,
                 startIndex: noteEvent.SampleIndexStart);
         }
 

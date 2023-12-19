@@ -171,8 +171,9 @@ namespace SoundThing.Services.NoteBuilder
 
         public NoteEvent CreateEvent()
             => new NoteEvent(new PlayedNoteInfo(
-                                noteInfo: Scale.GetNote(Argument).Step(Adjust),
+                                noteInfo: Scale.GetNote(Argument).Step(Adjust),                                 
                                 duration: Duration),
+                            envelope: null,
                             startTime: Start);
     }
 
@@ -191,6 +192,7 @@ namespace SoundThing.Services.NoteBuilder
             => new NoteEvent(new PlayedNoteInfo(
                                 noteInfo: ToNoteInfo((DrumPart)Argument),
                                 duration: Duration),
+                            envelope: null,
                             startTime: Start);
     }
 

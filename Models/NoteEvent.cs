@@ -2,17 +2,18 @@
 {
     struct NoteEvent
     {
-        public NoteEvent(PlayedNoteInfo note, double startTime)
-        {
-            Note = note;
-            SampleIndexStart = (int)(startTime * Constants.SamplesPerSecond);
-        }
+        public NoteEvent(PlayedNoteInfo note, Envelope? envelope, double startTime)
+            : this(note, envelope, (int)(startTime * Constants.SamplesPerSecond))
+        { }
 
-        public NoteEvent(PlayedNoteInfo note, int startIndex)
+        public NoteEvent(PlayedNoteInfo note, Envelope? envelope, int startIndex)
         {
             Note = note;
             SampleIndexStart = startIndex;
+            MaybeEnvelope = envelope;
         }
+
+        public Envelope? MaybeEnvelope { get; }
 
         public PlayedNoteInfo Note { get; }
         public int SampleIndexStart { get; }
@@ -28,25 +29,30 @@
 
         public NoteEvent ChangeVolume(double newVolumePercent)
         {
-            return new NoteEvent(Note.ChangeVolume(newVolumePercent), SampleIndexStart);
+            return new NoteEvent(Note.ChangeVolume(newVolumePercent), MaybeEnvelope, SampleIndexStart);
         }
 
         public NoteEvent ChangeSampleDuration(int newDuration)
         {
-            return new NoteEvent(Note.ChangeSampleDuration(newDuration), SampleIndexStart);
+            return new NoteEvent(Note.ChangeSampleDuration(newDuration), MaybeEnvelope, SampleIndexStart);
         }
 
         public NoteEvent ChangeStartTime(double newStart)
         {
-            return new NoteEvent(Note, newStart);
+            return new NoteEvent(Note, MaybeEnvelope, newStart);
         }
 
         public NoteEvent ChangeOctave(int octave)
         {
-            return new NoteEvent(Note.ChangeOctave(octave), SampleIndexStart);
+            return new NoteEvent(Note.ChangeOctave(octave), MaybeEnvelope, SampleIndexStart);
         }
 
-        public NoteEvent ShiftStart(int amount) => new NoteEvent(Note, SampleIndexStart + amount);
+        public NoteEvent SetEnvelope(Envelope envelope)
+        {
+            return new NoteEvent(Note, envelope, SampleIndexStart);
+        }
+
+        public NoteEvent ShiftStart(int amount) => new NoteEvent(Note, MaybeEnvelope, SampleIndexStart + amount);
 
         public static implicit operator SoundInfo(NoteEvent n) =>
             n.Note.NoteInfo;

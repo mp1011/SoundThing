@@ -9,7 +9,7 @@ namespace SoundThing.Services
     {
         private Player[] _players;
 
-        public static SoundEffectInstance[] CreateSounds(params Player[] players)
+        public static DynamicAudio[] CreateSounds(params Player[] players)
         {
             var band = new Band(players);
             return band.GenerateSounds();
@@ -20,13 +20,13 @@ namespace SoundThing.Services
             _players = players;
         }
 
-        public SoundEffectInstance[] GenerateSounds() =>          
+        public DynamicAudio[] GenerateSounds() =>          
             _players
                 .GroupBy(p => p.Channel)
                 .Select(GenerateSound)
                 .ToArray();
 
-        private SoundEffectInstance GenerateSound(IEnumerable<Player> players)
+        private DynamicAudio GenerateSound(IEnumerable<Player> players)
         {
             var totalSamples = _players.Max(p => p.TotalSamples);
 
@@ -34,11 +34,7 @@ namespace SoundThing.Services
                 .Select(p => p.SoundGenerator())
                 .Aggregate((a, b) => a.Add(b));
 
-
-            var sfx = SoundEffectMaker.Create(totalSamples,
-                soundGenerator);
-
-            return sfx.CreateInstance();
+            return new DynamicAudio(totalSamples, soundGenerator);
         }
 
     }

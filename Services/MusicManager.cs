@@ -7,7 +7,7 @@ namespace SoundThing.Services
 {
     class MusicManager
     {
-        private SoundEffectInstance[] _sounds = new SoundEffectInstance[] { };
+        private DynamicAudio[] _sounds = new DynamicAudio[] { };
         
         public Song[] Songs { get; }
 
