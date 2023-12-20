@@ -62,6 +62,17 @@ namespace SoundThing
                _uiManager,
                _musicManager));
 
+            _uiManager.Add(new Dial(
+                new Rectangle(200,350, 64,64), 
+                _uiManager, 
+                _musicManager,
+                40,
+                300,
+                v=>
+                {
+                    _musicManager.CurrentSong.BPM = (int)v;
+                    _musicManager.Play(_musicManager.CurrentSong);
+                }));
 
             base.Initialize();
         }
@@ -72,13 +83,16 @@ namespace SoundThing
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _uiManager.Font = Content.Load<SpriteFont>("Font");
 
+            var dial = Content.Load<Texture2D>("dial");
+
             var uiBackground = new Texture2D(GraphicsDevice, 16, 16);
             Color[] uiBackgroundPixels = new Color[uiBackground.Width * uiBackground.Height];
             for(int i =0; i < uiBackgroundPixels.Length; i++)
                 uiBackgroundPixels[i] = Color.White;
 
             uiBackground.SetData(uiBackgroundPixels);
-            _uiManager.ElementBackground = uiBackground;
+            _uiManager.Textures[TextureKey.ElementBackground]= uiBackground;
+            _uiManager.Textures[TextureKey.Dial] = dial;
         }
 
         protected override void Update(GameTime gameTime)

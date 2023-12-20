@@ -12,7 +12,7 @@ namespace SoundThing.Songs
         protected override Scale DefaultScale => Scale.Create(ScaleType.MajorScale,
              new NoteInfo(MusicNote.C, 2, 1.0));
 
-        protected override int BPM => 120;
+        protected override int DefaultBPM => 120;
 
         protected override IEnumerable<Player> Players
         {

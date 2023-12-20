@@ -10,7 +10,23 @@ namespace SoundThing.Songs
     abstract class Song : IActivateable
     {
         protected abstract IEnumerable<Player> Players { get; }
-        protected abstract int BPM { get; }
+        protected abstract int DefaultBPM { get; }
+
+        private int _bpm;
+        public int BPM
+        {
+            get
+            {
+                if (_bpm == 0)
+                    return DefaultBPM;
+                else
+                    return _bpm;
+            }
+            set
+            {
+                _bpm = value;
+            }
+        }
 
         private Scale _scale;
         public Scale Scale

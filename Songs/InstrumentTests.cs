@@ -63,7 +63,7 @@ namespace SoundThing.Songs
             return new Player(new SawInstrument(), 0, builder);
         }
 
-        protected override int BPM => 120;
+        protected override int DefaultBPM => 120;
 
         protected override Scale DefaultScale => Scale.Create(ScaleType.MajorScale,
             new NoteInfo(MusicNote.C, 2, 1.0));

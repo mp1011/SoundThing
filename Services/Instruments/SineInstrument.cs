@@ -16,6 +16,7 @@ namespace SoundThing.Services.Instruments
             (int sampleIndex, NoteEvent noteEvent) =>
                 Generator.Sine
                          .AddOvertones(3)
+                         .Gain(0.5)
                          (sampleIndex, noteEvent);
                     
     }

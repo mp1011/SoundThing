@@ -48,7 +48,7 @@ namespace SoundThing.Songs
             }
         }
 
-        protected override int BPM => 240;
+        protected override int DefaultBPM => 240;
 
         protected override Scale DefaultScale => Scale.Create(ScaleType.MajorScale,
              new NoteInfo(MusicNote.C, 4, 1.0));

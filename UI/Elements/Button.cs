@@ -27,9 +27,9 @@ namespace SoundThing.UI.Elements
         public override void Draw(SpriteBatch sprite)
         {
             if(MouseOver)
-                sprite.Draw(_uiManager.ElementBackground, _region, Color.LightGreen);
+                sprite.Draw(_uiManager.Textures[TextureKey.ElementBackground], _region, Color.LightGreen);
             else
-                sprite.Draw(_uiManager.ElementBackground, _region, Color.White);
+                sprite.Draw(_uiManager.Textures[TextureKey.ElementBackground], _region, Color.White);
 
             sprite.DrawString(_uiManager.Font, _text, new Vector2(_region.X + _pad.X, _region.Y + _pad.Y), Color.Black);
         }

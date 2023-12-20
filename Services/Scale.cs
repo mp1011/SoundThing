@@ -18,10 +18,14 @@ namespace SoundThing.Services
         MelodicMinorScale,
         HarmonicMinorScale,
         NaturalMinorScale,
-        PhrygianScale,
         PhrygianDominantScale,
         ChromaticScale,
-        LydianMode
+        DorianMode,
+        PhyrgianMode,
+        LydianMode,
+        MixolydianMode,
+        AeolianMode,
+        LocrianMode
     }
 
     struct ScaleParameters
@@ -54,14 +58,14 @@ namespace SoundThing.Services
         protected Scale(ScaleParameters scaleParameters)
         {
             _parameters = scaleParameters;
-            _steps = CreateSteps(_parameters.Sharps, _parameters.Flats);
+            Steps = CreateSteps(_parameters.Sharps, _parameters.Flats);
         }
 
         private readonly ScaleParameters _parameters;
 
         public NoteInfo Root => _parameters.Root;
 
-        public bool IsDiatonic => _steps.Length == 7;
+        public bool IsDiatonic => Steps.Length == 7;
 
         private ScaleStep[] CreateSteps(int[] sharps, int[] flats)
         {
@@ -82,7 +86,7 @@ namespace SoundThing.Services
         }
         protected abstract ScaleStep[] CreateSteps();
 
-        private readonly ScaleStep[] _steps;
+        public ScaleStep[] Steps { get; }
       
         public NoteInfo[] GetChord(int number)
         {
@@ -108,12 +112,12 @@ namespace SoundThing.Services
             if (number < 0)
             {
                 note = note.ChangeOctave(note.Octave - 1);
-                number += (_steps.Length + 1);
+                number += (Steps.Length + 1);
             }
 
             for (int i = 1; i < number; i++)
             {
-                note = note.Step(_steps[(i - 1) % _steps.Length]);
+                note = note.Step(Steps[(i - 1) % Steps.Length]);
             }
 
             return note;
@@ -177,6 +181,8 @@ namespace SoundThing.Services
         public override string ToString()
             => $"{Root} {GetType().Name.Replace("Scale", "").Replace("Mode", "")}";
     }
+
+
 
     class MajorScale : Scale
     {
@@ -249,39 +255,77 @@ namespace SoundThing.Services
         };
     }
 
-    class LydianMode : Scale
+    abstract class Mode : Scale
     {
-        public LydianMode(ScaleParameters parameters) : base(parameters)
+        protected abstract int Degree { get; }
+        protected Mode(ScaleParameters scaleParameters) : base(scaleParameters)
         {
         }
 
-        protected override ScaleStep[] CreateSteps() => new ScaleStep[]
+        protected override ScaleStep[] CreateSteps()
         {
-            ScaleStep.Whole,
-            ScaleStep.Whole,
-            ScaleStep.Whole,
-            ScaleStep.Half,
-            ScaleStep.Whole,
-            ScaleStep.Whole,
-            ScaleStep.Half
-        };
+            var basis = new MajorScale(new ScaleParameters(Root)).Steps;
+
+            return basis
+                .Skip(Degree - 1)
+                .Concat(
+                    basis.Take(Degree - 1))
+                .ToArray();
+        }
     }
-    class PhrygianScale : Scale
+
+    class DorianMode : Mode
     {
-        public PhrygianScale(ScaleParameters parameters) : base(parameters)
+        protected override int Degree => 2;
+
+        public DorianMode(ScaleParameters scaleParameters) : base(scaleParameters)
         {
         }
+    }
 
-        protected override ScaleStep[] CreateSteps() => new ScaleStep[]
+    class PhyrgianMode : Mode
+    {
+        protected override int Degree => 3;
+
+        public PhyrgianMode(ScaleParameters scaleParameters) : base(scaleParameters)
         {
-            ScaleStep.Half,
-            ScaleStep.Whole,
-            ScaleStep.Whole,
-            ScaleStep.Whole,
-            ScaleStep.Half,
-            ScaleStep.Whole,
-            ScaleStep.Whole
-        };
+        }
+    }
+
+    class LydianMode : Mode
+    {
+        protected override int Degree => 4;
+
+        public LydianMode(ScaleParameters scaleParameters) : base(scaleParameters)
+        {
+        }
+    }
+
+    class MixolydianMode : Mode
+    {
+        protected override int Degree => 5;
+
+        public MixolydianMode(ScaleParameters scaleParameters) : base(scaleParameters)
+        {
+        }
+    }
+
+    class AeolianMode : Mode
+    {
+        protected override int Degree => 6;
+
+        public AeolianMode(ScaleParameters scaleParameters) : base(scaleParameters)
+        {
+        }
+    }
+
+    class LocrianMode : Mode
+    {
+        protected override int Degree => 7;
+
+        public LocrianMode(ScaleParameters scaleParameters) : base(scaleParameters)
+        {
+        }
     }
 
     class PhrygianDominantScale : Scale

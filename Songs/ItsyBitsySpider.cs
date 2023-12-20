@@ -9,14 +9,14 @@ namespace SoundThing.Songs
     class ItsyBitsySpider : Song
     {
         protected override Scale DefaultScale => Scale.Create(ScaleType.MajorScale,
-                 new NoteInfo(MusicNote.C, 3, 1.0))
-                   .Flat(6);
-        protected override int BPM => 160;
+                 new NoteInfo(MusicNote.C, 3, 1.0));
+
+        protected override int DefaultBPM => 160;
         protected override IEnumerable<Player> Players
         {
             get
             { 
-                var noteBuilder = new NoteEventBuilder(BPM, NoteType.Quarter, Scale);
+                var noteBuilder = new NoteEventBuilder(BPM, NoteType.Quarter, Scale.Flat(6));
 
                 noteBuilder
                     .Add("1e 4q 3e 4q 5e 6q. 6q 6e 5q 4e 5q 6e 4q. 0q.")

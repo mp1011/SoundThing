@@ -4,16 +4,24 @@ using System.Collections.Generic;
 
 namespace SoundThing.UI.Services
 {
+    enum TextureKey
+    {
+        ElementBackground,
+        Dial
+    }
+
     class UIManager
     {
         private Input _input = new Input();
-
-        public SpriteFont Font { get; set; }
-
-        public Texture2D ElementBackground { get; set; }
-
         private List<UIElement> _uiElements = new List<UIElement>();
 
+        public SpriteFont Font { get; set; }
+        public Dictionary<TextureKey, Texture2D> Textures { get; }
+
+        public UIManager()
+        {
+            Textures = new Dictionary<TextureKey, Texture2D>();
+        }
 
         public void Add(UIElement element)
         {

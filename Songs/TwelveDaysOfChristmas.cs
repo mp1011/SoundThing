@@ -67,15 +67,15 @@ namespace SoundThing.Songs
                 }
 
                 builder.AddChord(NoteType.Whole, 1, 3, 5, 8);
-               
+                               
                 yield return new Player(new PluckyInstrument(), 0, builder);
             }
         }
 
-        protected override int BPM => 90;
+        protected override int DefaultBPM => 90;
 
         protected override Scale DefaultScale => Scale.Create(ScaleType.MajorScale,
-             new NoteInfo(MusicNote.C, 2, 1.0));
+             new NoteInfo(MusicNote.F, 2, 1.0));
 
         public override string ToString() => "12 Days of XMas";
     }
