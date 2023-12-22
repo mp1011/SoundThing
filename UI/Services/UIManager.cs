@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using SoundThing.Songs;
 using SoundThing.UI.Elements;
 using System.Collections.Generic;
 
@@ -39,6 +40,12 @@ namespace SoundThing.UI.Services
         {
             foreach (var element in _uiElements)
                 element.Draw(spriteBatch);
+        }
+
+        public void OnSongChanged(Song song)
+        {
+            foreach (var element in _uiElements)
+                element.OnSongChanged(song);
         }
     }
 }

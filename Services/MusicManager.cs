@@ -7,6 +7,10 @@ namespace SoundThing.Services
 {
     class MusicManager
     {
+        public delegate void SongChangedEvent(Song newSong);
+
+        public SongChangedEvent SongChanged;
+
         private DynamicAudio[] _sounds = new DynamicAudio[] { };
         
         public Song[] Songs { get; }
@@ -30,6 +34,7 @@ namespace SoundThing.Services
         public void Play(Song song)
         {
             CurrentSong = song;
+            SongChanged?.Invoke(song);
             foreach(var sound in _sounds)
                 sound.Stop();
 

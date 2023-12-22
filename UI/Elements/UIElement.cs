@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SoundThing.Services;
+using SoundThing.Songs;
 using SoundThing.UI.Services;
 
 namespace SoundThing.UI.Elements
@@ -19,6 +20,11 @@ namespace SoundThing.UI.Elements
             _region = region;
             _uiManager = uiManager;
             _musicManager = musicManager;
+        }
+
+        public virtual void OnSongChanged(Song song)
+        {
+
         }
 
         public virtual void Update(Input input)
