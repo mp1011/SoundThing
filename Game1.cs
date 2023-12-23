@@ -62,8 +62,8 @@ namespace SoundThing
                _uiManager,
                _musicManager));
 
-            _uiManager.Add(new ParameterDialSet(new Rectangle(50, 420, 64, 64),
-                20,
+            _uiManager.Add(new ParameterDialSet(new Rectangle(50, 620, 64, 64),
+                150,
                 _uiManager, 
                 _musicManager));
 

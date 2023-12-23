@@ -20,7 +20,7 @@ namespace SoundThing.UI.Elements
                 (float)parameter.Min,
                 (float)parameter.Max,
                 parameter.Name, 
-                "0.000", 
+                parameter.Format, 
                 v=> { 
                     parameter.Value = v;
                     musicManager.ResetSong();                

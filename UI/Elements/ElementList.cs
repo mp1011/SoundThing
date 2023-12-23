@@ -131,6 +131,7 @@ namespace SoundThing.UI.Elements
                     {
                         p.Value = _currentParameters[index].Value;
                     }
+                    p.Mod = 1.0;
                     return p;
                 })
                 .ToArray();

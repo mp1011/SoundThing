@@ -100,6 +100,26 @@ namespace SoundThing.Extensions
                 return value;
             };
         }
+        public static Func<int, SoundInfo, short> Lfo(this Func<int, SoundInfo, short> generator,
+          Parameter target,
+          double frequency,
+          double modA,
+          double modB)
+        {
+            var samplesPerPulse = frequency * (double)Constants.SamplesPerSecond;
+
+            return (int sampleIndex, SoundInfo soundInfo) =>
+            {
+                var pulseIndex = sampleIndex % (samplesPerPulse * 2);
+                if (pulseIndex > samplesPerPulse)
+                    target.Mod = modA;
+                else
+                    target.Mod = modB;
+
+                return generator(sampleIndex, soundInfo);
+            };
+
+        }
 
         public static Func<int, SoundInfo, short> Lfo(this Func<int, SoundInfo, short> generator, 
             double frequency,

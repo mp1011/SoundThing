@@ -18,19 +18,29 @@ namespace SoundThing.Services.Instruments
             "Percent",
             min: 0,
             max: 1.0,
-            value: 0.75);
+            value: 0.75,
+            format: "P");
+
+        public Parameter LfoFrequency { get; } = new Parameter(
+            "LFO Frequency",
+            0.001,
+            0.25,
+            0.07,
+            format: ".000");
 
         public override IEnumerable<Parameter> Parameters
         {
             get
             {
                 yield return Percent;
+                yield return LfoFrequency;
             }
         }
 
         protected override Func<int, NoteEvent, short> NoteGenerator =>
             (int sampleIndex, NoteEvent noteEvent) =>
-                Generator.PulseWidthModulation(Percent)            
+                Generator.PulseWidthModulation(Percent)           
+                         .Lfo(Percent, LfoFrequency, 0.5, 1.0)
                          (sampleIndex, noteEvent);
                     
     }

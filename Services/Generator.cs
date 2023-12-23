@@ -37,7 +37,7 @@ namespace SoundThing.Services
                 return (short)(soundInfo.Volume * _rng.NextDouble());
         };
 
-        public static Func<int, SoundInfo, short> PulseWidthModulation(double percent) => (sampleIndex, soundInfo) =>
+        public static Func<int, SoundInfo, short> PulseWidthModulation(Parameter percent) => (sampleIndex, soundInfo) =>
         {
             var waveDuration = 1.0 / soundInfo.Frequency;
             var samplesPerWave = waveDuration * Constants.SamplesPerSecond;

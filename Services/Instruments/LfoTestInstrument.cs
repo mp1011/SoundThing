@@ -11,7 +11,8 @@ namespace SoundThing.Services.Instruments
             "Frequency", 
             0.001, 
             0.25, 
-            0.07);
+            0.07,
+            "0.000");
 
         public override IEnumerable<Parameter> Parameters
         {
