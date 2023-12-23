@@ -12,20 +12,17 @@ namespace SoundThing.Songs
         {
         }
 
-        protected override IEnumerable<Player> Players
+        protected override IEnumerable<Player> CreatePlayers()
         {
-            get 
-            {
-                var noteBuilder = new NoteEventBuilder(BPM, NoteType.Quarter, Scale);
+            var noteBuilder = new NoteEventBuilder(BPM, NoteType.Quarter, Scale);
 
-                noteBuilder
-                    .Add("1e 1e 6q 5q 4h 0h")
-                    .Add("1e. 1s 6q 5q 4e. 4s 3q 4q 5h")
-                    .Add("5q 1e. 1s 5e 5e 1e 1e 5e 5e 4q 5q 0q")
-                    .Add("1e 1e 6q 5q 4e. 4s 3q 2q 1h");
+            noteBuilder
+                .Add("1e 1e 6q 5q 4h 0h")
+                .Add("1e. 1s 6q 5q 4e. 4s 3q 4q 5h")
+                .Add("5q 1e. 1s 5e 5e 1e 1e 5e 5e 4q 5q 0q")
+                .Add("1e 1e 6q 5q 4e. 4s 3q 2q 1h");
 
-                yield return new Player(new SawInstrument(), 0, noteBuilder);
-            }
+            yield return new Player(new SawInstrument(), 0, noteBuilder);
         }
 
         protected override int DefaultBPM => 100;

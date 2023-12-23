@@ -8,14 +8,11 @@ namespace SoundThing.Songs
 {
     class InstrumentTest : Song
     {
-        protected override IEnumerable<Player> Players
+        protected override IEnumerable<Player> CreatePlayers()
         { 
-            get
-            {
-                //yield return BuilderCombinationTest();
-                //yield return ParserTest();
-                yield return NoteCutoffTest();
-            } 
+           // yield return BuilderCombinationTest();
+            yield return ParserTest();
+            //yield return NoteCutoffTest();
         }
 
         private Player NoteCutoffTest()
@@ -50,7 +47,7 @@ namespace SoundThing.Songs
                               + (shape * shape2)
                               ).AddWholes(1);
 
-            return new Player(new SawInstrument(), 0, noteBuilder);
+            return new Player(new LfoTestInstrument(), 0, noteBuilder);
         }
 
         private Player ParserTest()
@@ -60,7 +57,7 @@ namespace SoundThing.Songs
                                     notes: "q(1 1# 2 2# 3 3# 4 5 6 7 8 7 6 5 4 3 2 1 -1 -2 -3 -4 -5) q135 e(135 357 579) h(157) s(7 5 3 2 -1) w1");
 
 
-            return new Player(new SawInstrument(), 0, builder);
+            return new Player(new PWMInstrument(), 0, builder);
         }
 
         protected override int DefaultBPM => 120;

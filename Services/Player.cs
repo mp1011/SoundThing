@@ -13,6 +13,8 @@ namespace SoundThing.Services
         private NoteEvent[] _events;
         public int Channel { get; }
 
+        public Instrument Instrument  => _instrument;
+
         public Player(Instrument instrument, int channel, IEnumerable<NoteEvent> events)
         {
             Channel = channel;

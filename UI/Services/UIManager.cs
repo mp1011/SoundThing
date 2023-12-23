@@ -1,7 +1,10 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using SoundThing.Models;
 using SoundThing.Songs;
 using SoundThing.UI.Elements;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SoundThing.UI.Services
 {

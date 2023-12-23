@@ -9,7 +9,9 @@ namespace SoundThing.Songs
 {
     abstract class Song : IActivateable
     {
-        protected abstract IEnumerable<Player> Players { get; }
+        protected abstract IEnumerable<Player> CreatePlayers();
+        public Player[] Players { get; private set; }
+
         protected abstract int DefaultBPM { get; }
 
         private int _bpm;
@@ -39,7 +41,12 @@ namespace SoundThing.Songs
 
         public DynamicAudio[] CreateSounds()
         {
-            return Band.CreateSounds(Players.ToArray());
+            return Band.CreateSounds(Players);
+        }
+
+        public void ResetPlayers()
+        {
+            Players = CreatePlayers().ToArray();
         }
 
         public static IEnumerable<Song> GetAll()

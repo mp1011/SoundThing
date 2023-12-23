@@ -62,22 +62,15 @@ namespace SoundThing
                _uiManager,
                _musicManager));
 
-            var bpmDial = new Dial(
-                new Rectangle(200,350, 64,64), 
+            _uiManager.Add(new ParameterDialSet(new Rectangle(50, 420, 64, 64),
+                20,
                 _uiManager, 
-                _musicManager,
-                min: 40,
-                max: 300,
-                label: "BPM",
-                format: "0",
-                v =>
-                {
-                    if (_musicManager.CurrentSong == null)
-                        return;
+                _musicManager));
 
-                    _musicManager.CurrentSong.BPM = (int)v;
-                    _musicManager.Play(_musicManager.CurrentSong);
-                });
+            var bpmDial = new BPMDial(
+                new Rectangle(50,320, 64,64), 
+                _uiManager, 
+                _musicManager);
 
             _uiManager.Add(bpmDial);
 

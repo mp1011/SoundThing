@@ -32,13 +32,16 @@ namespace SoundThing.Services
         }
 
         public void Play(Song song)
-        {
+        {             
             CurrentSong = song;
+            song.ResetPlayers();
             SongChanged?.Invoke(song);
             foreach(var sound in _sounds)
                 sound.Stop();
 
             _sounds = song.CreateSounds();
         }
+
+        public void ResetSong() => Play(CurrentSong);
     }
 }

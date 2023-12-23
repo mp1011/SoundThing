@@ -1,13 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SoundThing.Services;
-using SoundThing.Songs;
 using SoundThing.UI.Services;
 using System;
 
 namespace SoundThing.UI.Elements
 {
-    class Dial : UIElement
+    abstract class Dial : UIElement
     {
         private readonly int _activeRegionPad = 16;
         private readonly string _format;
@@ -31,7 +30,7 @@ namespace SoundThing.UI.Elements
                 var rotationValue = (_rotation - _rotationMin) / rotationRange;
                 return _min + (range * rotationValue);
             }
-            private set
+            set
             {
                 var range = _max - _min;
                 var rotationRange = _rotationMax - _rotationMin;
@@ -80,9 +79,16 @@ namespace SoundThing.UI.Elements
 
         public override void Update(Input input)
         {
+            var activeRegion = new Rectangle(
+                _region.X - +_activeRegionPad,
+                _region.Y - _activeRegionPad,
+                _region.Width + (_activeRegionPad * 2),
+                _region.Height + (_activeRegionPad * 2));
+
             if (input.LeftReleased)
             {
-                if (Value != _lastValue)
+                if (activeRegion.Contains(_mouseClickInitialPosition) 
+                    && Value != _lastValue)
                 {
                     _valueChanged(Value);
                     _lastValue = Value;
@@ -96,11 +102,6 @@ namespace SoundThing.UI.Elements
             if (input.LeftClick)
                 _mouseClickInitialPosition = input.MousePosition;
 
-            var activeRegion = new Rectangle(
-                _region.X - +_activeRegionPad,
-                _region.Y - _activeRegionPad,
-                _region.Width + (_activeRegionPad * 2),
-                _region.Height + (_activeRegionPad * 2));
 
             if (!activeRegion.Contains(_mouseClickInitialPosition))
                 return;
@@ -118,12 +119,5 @@ namespace SoundThing.UI.Elements
             else if (_rotation > _rotationMax)
                 _rotation = _rotationMax;
         }
-
-
-        public override void OnSongChanged(Song song)
-        {
-            Value = song.BPM;
-        }
-
     }
 }
