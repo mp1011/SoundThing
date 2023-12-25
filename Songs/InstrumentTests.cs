@@ -54,10 +54,10 @@ namespace SoundThing.Songs
         {
             var builder = new NoteEventBuilder(BPM, NoteType.Quarter, Scale)
                                .Add(action: EventAction.PlayScaleNote, 
-                                    notes: "q(1 1# 2 2# 3 3# 4 5 6 7 8 7 6 5 4 3 2 1 -1 -2 -3 -4 -5) q135 e(135 357 579) h(157) s(7 5 3 2 -1) w1");
+                                    notes: "w(5 3 2 1) q(1 1# 2 2# 3 3# 4 5 6 7 8 7 6 5 4 3 2 1 -1 -2 -3 -4 -5) q135 e(135 357 579) h(157) s(7 5 3 2 -1) w1");
 
 
-            return new Player(new PWMInstrument(), 0, builder);
+            return new Player(new ParameterModTestInstrument(), 0, builder);
         }
 
         protected override int DefaultBPM => 120;

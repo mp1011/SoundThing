@@ -19,7 +19,7 @@ namespace SoundThing.UI.Elements
 
         private Point _mouseClickInitialPosition;
 
-        private float _lastValue;
+        private float _lastValue = float.MinValue;
         public float Value
         {
             get

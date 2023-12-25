@@ -94,12 +94,23 @@ namespace SoundThing.Extensions
                 short value = generator(sampleIndex, soundInfo);
                 for (int i = 0; i < overtones; i++)
                 {
-                    soundInfo = new SoundInfo(soundInfo.Frequency * (double)(i + 2), soundInfo.VolumePercent / 2);
-                    value += generator(sampleIndex, soundInfo);
+                    var overtoneSoundInfo = new SoundInfo(soundInfo.Frequency * (double)(i + 2), soundInfo.VolumePercent * 0.5);
+                    value += generator(sampleIndex, overtoneSoundInfo);
                 }
                 return value;
             };
         }
+
+        public static Func<int, SoundInfo, short> ModifyParameter(this Func<int, SoundInfo, short> generator,
+          Parameter target, Func<int,double> mod)
+        {
+            return (int sampleIndex, SoundInfo soundInfo) =>
+            {
+                target.Mod = mod(sampleIndex);
+                return generator(sampleIndex, soundInfo);
+            };
+        }
+
         public static Func<int, SoundInfo, short> Lfo(this Func<int, SoundInfo, short> generator,
           Parameter target,
           double frequency,
@@ -137,6 +148,13 @@ namespace SoundThing.Extensions
                     return generator(sampleIndex, soundInfo.ChangeVolumePercent(volumeB));
             };
 
+        }
+        public static Func<int, SoundInfo, short> Gain(this Func<int, SoundInfo, short> generator, Parameter gainPercent)
+        {
+            return (int sampleIndex, SoundInfo soundInfo) =>
+            {
+                return generator(sampleIndex, new SoundInfo(soundInfo.Frequency, soundInfo.VolumePercent * gainPercent));
+            };
         }
 
         public static Func<int, SoundInfo, short> Gain(this Func<int, SoundInfo, short> generator, double gainPercent)

@@ -1,4 +1,6 @@
-﻿namespace SoundThing.Models
+﻿using System;
+
+namespace SoundThing.Models
 {
     class Parameter
     {
@@ -38,6 +40,7 @@
 
         public static implicit operator double(Parameter p) => p.ModifiedValue;
         public static implicit operator float(Parameter p) => (float)p.ModifiedValue;
+        public static implicit operator int(Parameter p) => (int)Math.Round(p.ModifiedValue);
 
         public override string ToString() => $"{Name}={Value.ToString(Format)}";
  
