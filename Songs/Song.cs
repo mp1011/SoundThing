@@ -56,7 +56,8 @@ namespace SoundThing.Songs
                 if(typeof(Song).IsAssignableFrom(type)
                     && !type.IsAbstract)
                 {
-                    yield return (Song)Activator.CreateInstance(type);
+                    if(type != typeof(ChordSong)) //hack
+                        yield return (Song)Activator.CreateInstance(type);
                 }
             }
         }

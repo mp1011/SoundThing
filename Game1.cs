@@ -62,6 +62,16 @@ namespace SoundThing
                _uiManager,
                _musicManager));
 
+            _uiManager.Add(new ScaleChordList(
+               new Rectangle(700, 32, 280, 32),           
+               _uiManager,
+               _musicManager));
+
+            _uiManager.Add(new ChordList(
+                 new Rectangle(1000, 32, 280, 32),
+                 _uiManager,
+                 _musicManager));
+
             _uiManager.Add(new ParameterDialSet(new Rectangle(50, 620, 64, 64),
                 150,
                 _uiManager, 
@@ -71,8 +81,11 @@ namespace SoundThing
                 new Rectangle(50,320, 64,64), 
                 _uiManager, 
                 _musicManager);
-
             _uiManager.Add(bpmDial);
+
+
+
+
 
             _musicManager.SongChanged += (song) => _uiManager.OnSongChanged(song);
 

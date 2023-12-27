@@ -88,7 +88,13 @@ namespace SoundThing.Services
 
         public ScaleStep[] Steps { get; }
       
-        public NoteInfo[] GetChord(int number)
+        public Chord GetChord(int number)
+        {
+            var notes = GetChordNotes(number);
+            return Chord.FromNotes(notes);
+        }
+
+        public NoteInfo[] GetChordNotes(int number)
         {
             return new NoteInfo[]
             {
@@ -100,6 +106,15 @@ namespace SoundThing.Services
 
         public int[] GetChordIndices(int number)
             => new int[] { number, number + 2, number + 4 };
+
+        public int IndexOf(NoteInfo note)
+            => Enumerable.Range(1, Steps.Length * 2)
+            .FirstOrDefault(index =>
+            {
+                var scaleNote = GetNote(index);
+                return scaleNote.Note == note.Note
+                    && scaleNote.Octave == note.Octave;
+            });
 
         public NoteInfo GetNote(int number)
         {

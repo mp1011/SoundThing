@@ -16,7 +16,8 @@ namespace SoundThing.Services
             {
                 if(typeof(Chord).IsAssignableFrom(type) && !type.IsAbstract)
                 {
-                    yield return type;
+                    if(type != typeof(UnknownChord))
+                        yield return type;
                 }
             }
         }
@@ -24,6 +25,11 @@ namespace SoundThing.Services
         static Chord()
         {
             _chordTypes = FindChordTypes().ToArray();
+        }
+
+        public static IEnumerable<Chord> CreateChordTypes(NoteInfo root)
+        {
+            return _chordTypes.Select(p => Create(p, root));
         }
 
         public static Chord Create(Type chordType, NoteInfo root)
@@ -60,9 +66,9 @@ namespace SoundThing.Services
                 return maybeChord;
             }
 
-            throw new Exception($"Unable to find chord for {string.Join(" ", notes.Select(p => p.ToString()).ToArray())}");
-        }
+            return new UnknownChord(root, intervals);
 
+        }
 
         private NoteInfo _root;
 
@@ -83,16 +89,8 @@ namespace SoundThing.Services
             }
         }
 
-        public IEnumerable<int> NoteIndices
-        {
-            get
-            {
-                int index = 1;
-                yield return index;
-                foreach (var interval in Intervals)
-                    yield return index += (int)interval;
-            }
-        }
+        public IEnumerable<int> GetNoteIndices(Scale scale)
+            => Notes.Select(p => scale.IndexOf(p));
 
         public override string ToString()
          => $"{_root} {GetType().Name.Replace("Chord", "")}";
@@ -136,5 +134,104 @@ namespace SoundThing.Services
         }
 
         protected override Interval[] Intervals => new Interval[] { Interval.MinorThird, Interval.DiminishedFifth };
+    }
+
+    class MajorSeventhChord : Chord
+    {
+        public MajorSeventhChord(NoteInfo root) : base(root)
+        {
+        }
+
+        protected override Interval[] Intervals => new Interval[] { Interval.MajorThird, Interval.PerfectFifth, Interval.MajorSeventh };
+    }
+
+    class MinorSeventhChord : Chord
+    {
+        public MinorSeventhChord(NoteInfo root) : base(root)
+        {
+        }
+
+        protected override Interval[] Intervals => new Interval[] { Interval.MinorThird, Interval.PerfectFifth, Interval.MajorSeventh };
+    }
+
+    class DominantSeventhChord : Chord
+    {
+        public DominantSeventhChord(NoteInfo root) : base(root)
+        {
+        }
+
+        protected override Interval[] Intervals => new Interval[] { Interval.MajorThird, Interval.PerfectFifth, Interval.MinorSeventh };
+    }
+
+    class Sus2Chord : Chord
+    {
+        public Sus2Chord(NoteInfo root) : base(root)
+        {
+        }
+
+        protected override Interval[] Intervals => new Interval[] { Interval.MajorSecond, Interval.PerfectFifth };
+    }
+
+    class Sus4Chord : Chord
+    {
+        public Sus4Chord(NoteInfo root) : base(root)
+        {
+        }
+
+        protected override Interval[] Intervals => new Interval[] { Interval.PerfectFourth, Interval.PerfectFifth };
+    }
+
+    class AugmentedChord : Chord
+    {
+        public AugmentedChord(NoteInfo root) : base(root)
+        {
+        }
+
+        protected override Interval[] Intervals => new Interval[] { Interval.MajorThird, Interval.AugmentedFifth };
+    }
+
+    class MajorNinthChord : Chord
+    {
+        public MajorNinthChord(NoteInfo root) : base(root)
+        {
+        }
+
+        protected override Interval[] Intervals => new Interval[] { Interval.MajorThird, Interval.PerfectFifth, Interval.MajorSeventh,
+            Interval.MajorNinth};
+    }
+
+    class MinorNinthChord : Chord
+    {
+        public MinorNinthChord(NoteInfo root) : base(root)
+        {
+        }
+
+        protected override Interval[] Intervals => new Interval[] { Interval.MinorThird, Interval.PerfectFifth, Interval.MinorSeventh,
+            Interval.MajorNinth};
+    }
+
+    class DominantNinth : Chord
+    {
+        public DominantNinth(NoteInfo root) : base(root)
+        {
+        }
+
+        protected override Interval[] Intervals => new Interval[] { Interval.MajorThird, Interval.PerfectFifth, Interval.MinorSeventh,
+            Interval.MajorNinth};
+    }
+
+    class UnknownChord : Chord
+    {
+        public UnknownChord(NoteInfo root, Interval[] intervals) : base(root)
+        {
+            Intervals = intervals;
+        }
+
+        protected override Interval[] Intervals { get; }
+
+        public override string ToString()
+        {
+            return "Unknown Chord";
+        }
     }
 }

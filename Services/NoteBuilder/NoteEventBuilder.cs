@@ -81,7 +81,7 @@ namespace SoundThing.Services.NoteBuilder
            => AddEventGroup(noteType, EventAction.PlayScaleNote, notes);
 
         public NoteEventBuilder AddChord(NoteType noteType, Chord chord)
-            => AddEventGroup(noteType, EventAction.PlayScaleNote, chord.NoteIndices.ToArray());
+            => AddEventGroup(noteType, EventAction.PlayScaleNote, chord.GetNoteIndices(_scale).ToArray());
 
         public NoteEventBuilder AddChords(NoteType noteType, params int[] chordNumbers)
         {
@@ -103,7 +103,7 @@ namespace SoundThing.Services.NoteBuilder
 
         public NoteEventBuilder AddArpeggio(NoteType noteType, ArpeggioStyle style, Chord chord)
         {
-            var chordNotes = chord.NoteIndices.ToArray();
+            var chordNotes = chord.GetNoteIndices(_scale).ToArray();
             AddArpeggio(noteType, style, chordNotes);
 
             return this;
