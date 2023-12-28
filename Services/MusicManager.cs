@@ -34,10 +34,13 @@ namespace SoundThing.Services
         public void Play(Song song)
         {             
             CurrentSong = song;
-            song.ResetPlayers();
+            song.ResetPlayers(); 
             SongChanged?.Invoke(song);
             foreach(var sound in _sounds)
                 sound.Stop();
+
+            foreach (var player in song.Players)
+                player.AdjustEventsToEnvelope();
 
             _sounds = song.CreateSounds();
         }

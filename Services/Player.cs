@@ -10,6 +10,7 @@ namespace SoundThing.Services
     class Player
     {
         private Instrument _instrument;
+        private NoteEvent[] _rawEvents;
         private NoteEvent[] _events;
         public int Channel { get; }
 
@@ -19,9 +20,14 @@ namespace SoundThing.Services
         {
             Channel = channel;
             _instrument = instrument;
-            _events = events
+            _rawEvents = events.ToArray();
+        }
+
+        public void AdjustEventsToEnvelope()
+        {
+            _events = _rawEvents
                 .OrderBy(p => p.SampleIndexStart)
-                .AdjustToEnvelope(_instrument.Envelope)                
+                .AdjustToEnvelope(_instrument.Envelope)
                 .ToArray();
 
             _events = _events

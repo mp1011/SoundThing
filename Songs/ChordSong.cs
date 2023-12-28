@@ -24,7 +24,7 @@ namespace SoundThing.Songs
             var noteBuilder = new NoteEventBuilder(BPM, NoteType.Quarter, _chord.Scale);
             noteBuilder.AddArpeggio(NoteType.Quarter, ArpeggioStyle.Rising, _chord.Chord);
             noteBuilder.AddChord(NoteType.Whole, _chord.Chord);
-            yield return new Player(new PluckyInstrument(), 0, noteBuilder);
+            yield return new Player(new ParameterModTestInstrument(), 0, noteBuilder);
         }
     }
 }
