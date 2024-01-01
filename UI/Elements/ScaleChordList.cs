@@ -20,12 +20,14 @@ namespace SoundThing.UI.Elements
 
         protected override Button ToUIElement(ScaleChord data)
         {
-            return new Button(_uiManager, _musicManager, data.ToString(), NextRegion(),
-                () =>
+            var button = new Button(_uiManager, _musicManager, data.ToString(), NextRegion());
+            button.OnLeftClicked += (UIElement e) =>
                 {
                     var song = new ChordSong(data);
                     _musicManager.Play(song);
-                });
+                };
+
+            return button;
         }
 
         public override void OnSongChanged(Song song)

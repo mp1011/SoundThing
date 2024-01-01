@@ -41,7 +41,7 @@ namespace SoundThing.Songs
 
             //    (b, part) => b.SetOctave(b.Octave - 1));
 
-            yield return new Player(new SquareInstrument(), 0, noteBuilder);
+            yield return new Player(new ParameterModTestInstrument(), 0, noteBuilder);
         }
 
         protected override int DefaultBPM => 240;

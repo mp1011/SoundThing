@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace SoundThing.Songs
 {
-    abstract class Song : IActivateable
+    abstract class Song
     {
         protected abstract IEnumerable<Player> CreatePlayers();
         public Player[] Players { get; private set; }
@@ -64,8 +64,5 @@ namespace SoundThing.Songs
 
         public override string ToString() =>
             GetType().Name.AddSpacesAtCapitals();
-
-        public void Activate(MusicManager manager)
-            => manager.Play(this);
     }
 }

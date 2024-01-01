@@ -22,7 +22,7 @@ namespace SoundThing.Songs
                 .Add("5q 1e. 1s 5e 5e 1e 1e 5e 5e 4q 5q 0q")
                 .Add("1e 1e 6q 5q 4e. 4s 3q 2q 1h");
 
-            yield return new Player(new SawInstrument(), 0, noteBuilder);
+            yield return new Player(new ParameterModTestInstrument(), 0, noteBuilder);
         }
 
         protected override int DefaultBPM => 100;

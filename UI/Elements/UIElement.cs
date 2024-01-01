@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using SoundThing.Services;
 using SoundThing.Songs;
 using SoundThing.UI.Services;
@@ -14,6 +13,10 @@ namespace SoundThing.UI.Elements
         protected Rectangle _region;
         protected UIManager _uiManager;
         protected MusicManager _musicManager;
+
+        public delegate void LeftClicked(UIElement sender);
+
+        public LeftClicked OnLeftClicked;
 
         public UIElement(Rectangle region, UIManager uiManager, MusicManager musicManager)
         {
@@ -32,12 +35,7 @@ namespace SoundThing.UI.Elements
             MouseOver = _region.Contains(input.MousePosition);
 
             if (MouseOver && input.LeftClick)
-                OnLeftClick();
-        }
-
-        protected virtual void OnLeftClick()
-        {
-
+                OnLeftClicked?.Invoke(this);
         }
 
         public abstract void Draw(SpriteBatch sprite);

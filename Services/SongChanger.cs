@@ -3,7 +3,7 @@ using System;
 
 namespace SoundThing.Services
 {
-    class SongChanger : IActivateable
+    class SongChanger
     {
         private readonly Action<Song> _action;
         private readonly string _label;

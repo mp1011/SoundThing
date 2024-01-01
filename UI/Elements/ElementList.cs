@@ -19,6 +19,10 @@ namespace SoundThing.UI.Elements
         private Rectangle _firstRegion;
         private int _spacing;
 
+        public delegate void LeftClickedItem(UIElement element, TData data);
+
+        public LeftClickedItem OnLeftClickedItem;
+
         protected abstract Orientation Orientation { get; }
 
         public ElementList(
@@ -31,11 +35,7 @@ namespace SoundThing.UI.Elements
             _spacing = spacing;
             _nextRegion = firstPosition;
             _firstRegion = firstPosition;
-            _elements = data
-                .Select(ToUIElement)
-                .ToArray();
-
-
+            SetData(data);
         }
 
         protected abstract TElement ToUIElement(TData data);
@@ -79,13 +79,20 @@ namespace SoundThing.UI.Elements
         {
             _nextRegion = _firstRegion;
             _elements = data
-                .Select(ToUIElement)
+                .Select(data =>
+                {
+                    var element = ToUIElement(data);
+                    element.OnLeftClicked += (UIElement e) =>
+                    {
+                        OnLeftClickedItem?.Invoke(e, data);
+                    };
+                    return element;
+                })
                 .ToArray();
         }
     }
 
     class VerticalButtonList<TData> : ElementList<TData, Button>
-        where TData : IActivateable
     {
         protected override Orientation Orientation => Orientation.Vertical;
 
@@ -99,8 +106,7 @@ namespace SoundThing.UI.Elements
                 _uiManager, 
                 _musicManager, 
                 data.ToString(), 
-                NextRegion(), 
-                () => data.Activate(_musicManager));
+                NextRegion());
     }
 
    

@@ -22,7 +22,7 @@ namespace SoundThing.Songs
                 .Add("4q. 4q 5e 6q. 6q. 5q 4e 5q 6e 4q. 1q 1e")
                 .Add("4q 3e 4q 5e 6q. 6q 6e 5q 4e 5q 6e 4h. 0w");
 
-            yield return new Player(new PluckyInstrument(), 0, noteBuilder);
+            yield return new Player(new ParameterModTestInstrument(), 0, noteBuilder);
         }
     }
 }

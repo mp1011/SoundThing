@@ -32,14 +32,20 @@ namespace SoundThing
             _musicManager = new MusicManager();
             _uiManager = new UIManager();
 
-            _uiManager.Add(new VerticalButtonList<Song>(
-                new Rectangle(32, 32, 256, 32),
-                16,
-                _musicManager.Songs,
-                _uiManager,
-                _musicManager));
+            var songPicker = new Dropdown<Song>(
+                position: new Rectangle(32, 32, 256, 32),
+                spacing: 16,
+                data: _musicManager.Songs,
+                uiManager: _uiManager,
+                musicManager: _musicManager);
 
-            _uiManager.Add(new VerticalButtonList<SongChanger>(
+            songPicker.OnItemSelected += (Song song) =>
+            {
+                _musicManager.Play(song);
+            };
+            _uiManager.Add(songPicker);
+
+            var scaleNotePicker = new Dropdown<SongChanger>(
                 new Rectangle(300, 32, 64, 32),
                 16,
                 Enum.GetValues(typeof(MusicNote))
@@ -49,9 +55,12 @@ namespace SoundThing
                         note.ToString().Replace("Sharp", "#"),
                         (s) => s.Scale = s.Scale.ChangeKey(note))),
                 _uiManager,
-                _musicManager));
+                _musicManager);
 
-            _uiManager.Add(new VerticalButtonList<SongChanger>(
+            scaleNotePicker.OnItemSelected += (SongChanger c) => c.Activate(_musicManager);
+            _uiManager.Add(scaleNotePicker);
+
+            var scaleTypePicker = new Dropdown<SongChanger>(
                new Rectangle(400, 32, 280, 32),
                16,
                Enum.GetValues(typeof(ScaleType))
@@ -60,7 +69,9 @@ namespace SoundThing
                        scaleType.ToString().AddSpacesAtCapitals(),
                        (s) => s.Scale = s.Scale.ChangeScaleType(scaleType))),
                _uiManager,
-               _musicManager));
+               _musicManager);
+            scaleTypePicker.OnItemSelected += (SongChanger c) => c.Activate(_musicManager);
+            _uiManager.Add(scaleTypePicker);
 
             _uiManager.Add(new ScaleChordList(
                new Rectangle(700, 32, 280, 32),           

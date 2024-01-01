@@ -66,7 +66,7 @@ namespace SoundThing.Songs
 
             builder.AddChord(NoteType.Whole, 1, 3, 5, 8);
                                
-            yield return new Player(new PluckyInstrument(), 0, builder);
+            yield return new Player(new ParameterModTestInstrument(), 0, builder);
         }
 
         protected override int DefaultBPM => 90;
