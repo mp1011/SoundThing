@@ -88,6 +88,10 @@ namespace SoundThing
                 _uiManager, 
                 _musicManager));
 
+            _uiManager.Add(new EnumParameterPicker<GeneratorType>(new Rectangle(50, 720, 200, 32),
+                _uiManager,
+                _musicManager));
+
             var bpmDial = new BPMDial(
                 new Rectangle(50,320, 64,64), 
                 _uiManager, 

@@ -16,6 +16,10 @@ namespace SoundThing.Services.Instruments
                     release: Release);
         }
 
+        public Parameter<GeneratorType> BaseGenerator { get; } = new Parameter<GeneratorType>(
+            name: "Generator",
+            value: GeneratorType.Sine);
+
         public Parameter SustainVolumePercent { get; } = new Parameter(
             name: "Sus",
             min: 0.0,
@@ -72,10 +76,19 @@ namespace SoundThing.Services.Instruments
             0.3,
             format: "0.000");
 
-        public override IEnumerable<Parameter> Parameters
+        public Parameter Overtones { get; } = new Parameter(
+           name: "Overtones",
+           min: 0,
+           max: 10,
+           value: 2,
+           format: "0");
+
+        public override IEnumerable<IParameter> Parameters
         {
             get
             {
+                yield return BaseGenerator;
+                yield return Overtones;
                 yield return Attack;
                 yield return Decay;
                 yield return SustainVolumePercent;
@@ -89,8 +102,8 @@ namespace SoundThing.Services.Instruments
 
         protected override Func<int, NoteEvent, short> NoteGenerator =>
             (int sampleIndex, NoteEvent noteEvent) =>
-                Generator.PulseWidthModulation(PulseWidthPercent)
-                         .Add(Generator.Sine)
+                Generator.Create(BaseGenerator.Value, PulseWidthPercent)
+                         .AddOvertones(Overtones)
                          .Gain(GainAmount)
                          .Clip(ClipAmount)
                          .ModifyParameter(PulseWidthPercent, Generator.SineWave(SinFreq, 0.1, 1.0))

@@ -21,7 +21,7 @@ namespace SoundThing.Services.Instruments
             value: 2,
             format: "0");
 
-        public override IEnumerable<Parameter> Parameters
+        public override IEnumerable<IParameter> Parameters
         {
             get
             {

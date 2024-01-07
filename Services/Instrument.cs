@@ -12,7 +12,7 @@ namespace SoundThing.Services
                 .ApplyEnvelope(noteEvent.MaybeEnvelope ?? Envelope, noteEvent)
                 (sampleIndex, noteEvent);
 
-        public virtual IEnumerable<Parameter> Parameters => Array.Empty<Parameter>();
+        public virtual IEnumerable<IParameter> Parameters => Array.Empty<IParameter>();
 
         public virtual Envelope? Envelope => null;
 

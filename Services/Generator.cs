@@ -7,6 +7,17 @@ namespace SoundThing.Services
     {
         private static Random _rng = new Random();
 
+        public static Func<int, SoundInfo, short> Create(GeneratorType type, Parameter p) =>
+            type switch
+            {
+                GeneratorType.Sine => Sine,
+                GeneratorType.Saw => Saw,
+                GeneratorType.Square => Square,
+                GeneratorType.Noise => Fuzz(p),
+                GeneratorType.PWM => PulseWidthModulation(p),
+                _ => throw new NotSupportedException()
+            };
+
         public static Func<int, SoundInfo, short> Sine = (sampleIndex, soundInfo) =>
         {
             double theta = (soundInfo.Frequency * 2 * Math.PI) / Constants.SamplesPerSecond;
@@ -35,6 +46,18 @@ namespace SoundThing.Services
                 return (short)soundInfo.Volume;
             else
                 return (short)-soundInfo.Volume;
+        };
+
+        public static Func<int, SoundInfo, short> Fuzz(Parameter level) => (sampleIndex, soundInfo) =>
+        {
+            var waveDuration = 1.0 / soundInfo.Frequency;
+            var samplesPerWave = waveDuration * Constants.SamplesPerSecond;
+            var value = sampleIndex % samplesPerWave;
+
+            if (value >= samplesPerWave * level)
+                return 0;
+            else
+                return (short)(soundInfo.Volume * _rng.NextDouble());
         };
 
         public static Func<int, SoundInfo, short> Fuzz(double level) => (sampleIndex, soundInfo) =>

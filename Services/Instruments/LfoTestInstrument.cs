@@ -14,7 +14,7 @@ namespace SoundThing.Services.Instruments
             0.07,
             "0.000");
 
-        public override IEnumerable<Parameter> Parameters
+        public override IEnumerable<IParameter> Parameters
         {
             get
             {

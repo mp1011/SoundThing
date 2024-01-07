@@ -2,7 +2,12 @@
 
 namespace SoundThing.Models
 {
-    class Parameter
+    interface IParameter
+    {
+        string Name { get; }
+    }
+
+    class Parameter : IParameter
     {
         private double _value;
 
@@ -43,6 +48,17 @@ namespace SoundThing.Models
         public static implicit operator int(Parameter p) => (int)Math.Round(p.ModifiedValue);
 
         public override string ToString() => $"{Name}={Value.ToString(Format)}";
- 
+    }
+
+    class Parameter<T> : IParameter
+    {
+        public T Value { get; set; }
+        public string Name { get; }
+
+        public Parameter(string name, T value)
+        {
+            Name = name;
+            Value = value;
+        }
     }
 }

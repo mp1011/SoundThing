@@ -30,14 +30,15 @@ namespace SoundThing.UI.Elements
             var newParameters = song
                 .Players
                 .SelectMany(p => p.Instrument.Parameters)
+                .OfType<Parameter>()
                 .Select((p, index) =>
                 {
                     if (index < _currentParameters.Length
                         && p.Name == _currentParameters[index].Name)
                     {
                         p.Value = _currentParameters[index].Value;
+                        p.Mod = 1.0;
                     }
-                    p.Mod = 1.0;
                     return p;
                 })
                 .ToArray();
