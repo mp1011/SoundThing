@@ -1,4 +1,5 @@
-﻿using SoundThing.Models;
+﻿using SoundThing.Extensions;
+using SoundThing.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,6 +89,27 @@ namespace SoundThing.Services
 
         public ScaleStep[] Steps { get; }
       
+        public IEnumerable<Chord> AllChords
+        {
+            get
+            {
+                var allNotes = Enumerable.Range(1, Steps.Length + 1)
+                                         .Select(p=>GetNote(p))
+                                         .ToArray();
+
+                var allNoteCombos = allNotes.AllCombinations(minLength: 3, maxLength: Steps.Length).ToArray();
+
+                return allNoteCombos.Select(p =>
+                {
+                    var chord = Chord.FromNotes(p);
+                    if (chord is UnknownChord)
+                        return null;
+                    else
+                        return chord;
+                }).Where(p => p != null);
+            }
+        }
+
         public Chord GetChord(int number)
         {
             var notes = GetChordNotes(number);

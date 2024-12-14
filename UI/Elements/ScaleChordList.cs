@@ -32,8 +32,9 @@ namespace SoundThing.UI.Elements
 
         public override void OnSongChanged(Song song)
         {
-            SetData(Enumerable.Range(1, song.Scale.Steps.Length)
-                .Select(i => new ScaleChord(song.Scale, i, song.Scale.GetChord(i))));
+            SetData(song.Scale.AllChords.Select((p, i) => new ScaleChord(song.Scale, i, p)));
+            //SetData(Enumerable.Range(1, song.Scale.Steps.Length)
+            //    .Select(i => new ScaleChord(song.Scale, i, song.Scale.GetChord(i))));
         }
     }
 }
